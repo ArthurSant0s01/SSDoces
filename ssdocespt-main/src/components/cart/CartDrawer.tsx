@@ -7,8 +7,6 @@ import { Drawer, DrawerClose, DrawerContent, DrawerHeader, DrawerTitle, DrawerTr
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { ShoppingCart, Trash2, Plus, Minus } from 'lucide-react';
-import Link from 'next/link';
-import Image from 'next/image';
 import { useState } from 'react';
 
 export function CartDrawer() {
@@ -37,9 +35,9 @@ export function CartDrawer() {
           <div className="flex-1 flex flex-col items-center justify-center p-8">
             <ShoppingCart className="w-16 h-16 text-slate-300 mb-4" />
             <p className="text-slate-600 dark:text-slate-400 text-center">Seu carrinho está vazio</p>
-            <Link href="/produtos">
+            <a href="/produtos">
               <Button className="mt-4">Continuar Comprando</Button>
-            </Link>
+            </a>
           </div>
         ) : (
           <>
@@ -48,11 +46,10 @@ export function CartDrawer() {
                 <div key={item.productId} className="flex gap-4 p-3 bg-slate-50 dark:bg-slate-900 rounded-lg">
                   {item.imageUrl && (
                     <div className="relative w-20 h-20 flex-shrink-0">
-                      <Image
+                      <img
                         src={item.imageUrl}
                         alt={item.name}
-                        fill
-                        className="object-cover rounded-md"
+                        className="h-full w-full object-cover rounded-md"
                       />
                     </div>
                   )}
@@ -115,9 +112,9 @@ export function CartDrawer() {
                     Continuar Comprando
                   </Button>
                 </DrawerClose>
-                <Link href="/checkout" className="flex-1">
+                <a href="/checkout" className="flex-1">
                   <Button className="w-full">Checkout</Button>
-                </Link>
+                </a>
               </div>
             </div>
           </>

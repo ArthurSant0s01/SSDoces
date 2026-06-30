@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useCartStore } from '@/store/cart';
-import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,8 +12,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
 
 interface CheckoutProps {
   onOrderSubmit?: (orderData: any) => Promise<void>;
@@ -22,7 +19,6 @@ interface CheckoutProps {
 
 export function CheckoutFlow({ onOrderSubmit }: CheckoutProps) {
   const { items, getTotalPrice, clearCart } = useCartStore();
-  const { user } = useAuth();
   const [step, setStep] = useState<'review' | 'shipping' | 'payment' | 'confirmation'>('review');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -98,9 +94,9 @@ export function CheckoutFlow({ onOrderSubmit }: CheckoutProps) {
     return (
       <div className="text-center py-12">
         <p className="text-slate-600 dark:text-slate-400 mb-4">Seu carrinho está vazio</p>
-        <Link href="/produtos">
+        <a href="/produtos">
           <Button>Continuar Comprando</Button>
-        </Link>
+        </a>
       </div>
     );
   }
@@ -119,9 +115,9 @@ export function CheckoutFlow({ onOrderSubmit }: CheckoutProps) {
           <p className="text-slate-600 dark:text-slate-400 text-lg">
             Obrigado pela sua compra. Você receberá um email de confirmação em breve.
           </p>
-          <Link href="/dashboard">
+          <a href="/dashboard">
             <Button size="lg">Acompanhar Pedido</Button>
-          </Link>
+          </a>
         </div>
       )}
 
@@ -152,11 +148,10 @@ export function CheckoutFlow({ onOrderSubmit }: CheckoutProps) {
                       <div key={item.productId} className="flex gap-4 p-3 bg-slate-50 dark:bg-slate-900 rounded-lg">
                         {item.imageUrl && (
                           <div className="relative w-16 h-16 flex-shrink-0">
-                            <Image
+                            <img
                               src={item.imageUrl}
                               alt={item.name}
-                              fill
-                              className="object-cover rounded"
+                              className="h-full w-full object-cover rounded"
                             />
                           </div>
                         )}

@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Star, Heart, Share2, Check } from 'lucide-react';
-import Image from 'next/image';
 import { useCartStore } from '@/store/cart';
 import { motion } from 'framer-motion';
 
@@ -47,12 +46,10 @@ export function ProductDetails({ product, relatedProducts = [], reviews = [] }: 
         <div className="space-y-4">
           <div className="relative aspect-square overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-900">
             {selectedImage && (
-              <Image
+              <img
                 src={selectedImage}
                 alt={product.name}
-                fill
-                className="object-cover"
-                priority
+                className="h-full w-full object-cover"
               />
             )}
             {discount > 0 && (
@@ -73,7 +70,7 @@ export function ProductDetails({ product, relatedProducts = [], reviews = [] }: 
                       : 'border-slate-200 dark:border-slate-700 hover:border-blue-400'
                   }`}
                 >
-                  <Image src={img} alt={`${product.name} ${idx}`} fill className="object-cover" />
+                  <img src={img} alt={`${product.name} ${idx}`} className="h-full w-full object-cover" />
                 </button>
               ))}
             </div>
@@ -294,11 +291,10 @@ export function ProductDetails({ product, relatedProducts = [], reviews = [] }: 
                 <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
                   <div className="relative aspect-square overflow-hidden bg-slate-100 dark:bg-slate-900">
                     {prod.image_url && (
-                      <Image
+                      <img
                         src={prod.image_url}
                         alt={prod.name}
-                        fill
-                        className="object-cover hover:scale-110 transition-transform"
+                        className="h-full w-full object-cover hover:scale-110 transition-transform"
                       />
                     )}
                   </div>

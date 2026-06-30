@@ -13,8 +13,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CardContent, Card } from '@/components/ui/card';
-import Image from 'next/image';
-import Link from 'next/link';
 import { Heart, Star, Search } from 'lucide-react';
 import { useCartStore } from '@/store/cart';
 import { motion } from 'framer-motion';
@@ -188,11 +186,10 @@ export function ProductGrid({
                   {/* Image */}
                   <div className="relative aspect-square overflow-hidden bg-slate-100 dark:bg-slate-800">
                     {product.image_url && (
-                      <Image
+                      <img
                         src={product.image_url}
                         alt={product.name}
-                        fill
-                        className="object-cover hover:scale-110 transition-transform duration-300"
+                        className="h-full w-full object-cover hover:scale-110 transition-transform duration-300"
                       />
                     )}
                     {product.discount_price && (
@@ -218,11 +215,11 @@ export function ProductGrid({
 
                   {/* Content */}
                   <CardContent className="flex-1 flex flex-col p-4">
-                    <Link href={`/produtos/${product.slug}`}>
+                    <a href={`/produtos/${product.slug}`}>
                       <h3 className="font-semibold line-clamp-2 hover:text-blue-600 transition">
                         {product.name}
                       </h3>
-                    </Link>
+                    </a>
 
                     {/* Rating */}
                     <div className="flex items-center gap-1 mt-2">

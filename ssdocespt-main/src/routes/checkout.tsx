@@ -2,9 +2,6 @@
 
 import { createFileRoute } from '@tanstack/react-router';
 import { CheckoutFlow } from '@/components/CheckoutFlow';
-import { useAuth } from '@/hooks/use-auth';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 
 export const Route = createFileRoute('/checkout')({
   head: () => ({
@@ -20,8 +17,6 @@ export const Route = createFileRoute('/checkout')({
 });
 
 function CheckoutRouteComponent() {
-  const { user } = useAuth();
-
   const handleOrderSubmit = async (orderData: any) => {
     try {
       console.log('Submitting order:', orderData);

@@ -14,8 +14,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Trash2, Minus, Plus, ShoppingBag } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
+
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 
@@ -43,9 +42,9 @@ export function CartPage() {
         <p className="text-slate-600 dark:text-slate-400 mb-6">
           Você não tem produtos no carrinho
         </p>
-        <Link href="/produtos">
+        <a href="/produtos">
           <Button size="lg">Continuar Comprando</Button>
-        </Link>
+        </a>
       </div>
     );
   }
@@ -83,11 +82,10 @@ export function CartPage() {
                         <div className="flex items-center gap-3">
                           {item.imageUrl && (
                             <div className="relative w-12 h-12 flex-shrink-0">
-                              <Image
+                              <img
                                 src={item.imageUrl}
                                 alt={item.name}
-                                fill
-                                className="object-cover rounded"
+                                className="h-full w-full object-cover rounded"
                               />
                             </div>
                           )}
@@ -190,11 +188,11 @@ export function CartPage() {
                 </div>
               </div>
 
-              <Link href="/checkout" className="w-full">
+              <a href="/checkout" className="w-full">
                 <Button className="w-full" size="lg">
                   Ir para Checkout
                 </Button>
-              </Link>
+              </a>
 
               <Button variant="outline" className="w-full" onClick={clearCart}>
                 Limpar Carrinho
