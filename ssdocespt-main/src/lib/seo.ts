@@ -1,7 +1,5 @@
 // SEO utilities and helpers
 
-import { Metadata } from 'next';
-
 interface SeoData {
   title: string;
   description: string;
@@ -16,8 +14,8 @@ interface SeoData {
 /**
  * Generate metadata for SEO
  */
-export function generateSeoMetadata(data: SeoData): Metadata {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ssdoces.com.br';
+export function generateSeoMetadata(data: SeoData) {
+  const baseUrl = import.meta.env.VITE_SITE_URL || 'https://ssdoces.com.br';
 
   return {
     title: data.title,
@@ -98,7 +96,7 @@ export function generateProductStructuredData(product: {
  * Generate organization structured data
  */
 export function generateOrganizationStructuredData() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ssdoces.com.br';
+  const baseUrl = import.meta.env.VITE_SITE_URL || 'https://ssdoces.com.br';
 
   return {
     '@context': 'https://schema.org',
@@ -200,7 +198,7 @@ export function generateArticleStructuredData(article: {
  * Get canonical URL
  */
 export function getCanonicalUrl(path: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ssdoces.com.br';
+  const baseUrl = import.meta.env.VITE_SITE_URL || 'https://ssdoces.com.br';
   return `${baseUrl}${path}`;
 }
 
@@ -262,7 +260,7 @@ export const SeoDescriptions = {
  * Generate breadcrumb items for navigation
  */
 export function getBreadcrumbItems(pathname: string): Array<{ name: string; url: string }> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ssdoces.com.br';
+  const baseUrl = import.meta.env.VITE_SITE_URL || 'https://ssdoces.com.br';
   const items: Array<{ name: string; url: string }> = [
     { name: 'Home', url: baseUrl },
   ];

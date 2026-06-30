@@ -1,12 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { requireGuest } from '@/lib/route-guards';
-import { signUp } from '@/lib/supabase';
+import { isSupabaseConfigured, signUp } from '@/lib/supabase';
 import { AuthLayout } from '@/components/auth/AuthLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import { SupabaseUnavailablePage } from '@/components/SupabaseUnavailablePage';
 
 export const Route = createFileRoute('/sign-up')({
   beforeLoad: async () => {
@@ -46,6 +47,10 @@ const getPasswordStrength = (password: string): PasswordStrength => {
 };
 
 function SignUpPage() {
+  if (!isSupabaseConfigured) {
+    return <SupabaseUnavailablePage title="Registo indisponível" />;
+  }
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');

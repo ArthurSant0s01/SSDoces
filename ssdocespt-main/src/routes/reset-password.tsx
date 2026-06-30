@@ -1,11 +1,12 @@
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
 import { useState, useEffect } from 'react';
-import { updatePassword, getCurrentUser } from '@/lib/supabase';
+import { getCurrentUser, isSupabaseConfigured, updatePassword } from '@/lib/supabase';
 import { AuthLayout } from '@/components/auth/AuthLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import { SupabaseUnavailablePage } from '@/components/SupabaseUnavailablePage';
 
 interface SearchParams {
   code?: string;
@@ -53,6 +54,10 @@ const getPasswordStrength = (password: string): PasswordStrength => {
 };
 
 function ResetPasswordPage() {
+  if (!isSupabaseConfigured) {
+    return <SupabaseUnavailablePage title="Redefinição de senha indisponível" />;
+  }
+
   const navigate = useNavigate();
   const search = useSearch({ from: '/reset-password' });
   const [password, setPassword] = useState('');

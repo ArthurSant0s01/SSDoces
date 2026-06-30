@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { isSupabaseConfigured, supabase } from '@/lib/supabase';
+import { SupabaseUnavailablePage } from '@/components/SupabaseUnavailablePage';
 
 export const Route = createFileRoute('/auth/callback')({
   component: AuthCallback,
@@ -9,6 +10,10 @@ export const Route = createFileRoute('/auth/callback')({
 function AuthCallback() {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+
+  if (!isSupabaseConfigured) {
+    return <SupabaseUnavailablePage title="Autenticação indisponível" />;
+  }
 
   useEffect(() => {
     const handleCallback = async () => {

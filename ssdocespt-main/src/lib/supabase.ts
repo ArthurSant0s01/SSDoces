@@ -1,14 +1,58 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
+import { getAppOrigin, logMissingSupabaseEnvironment, supabaseEnvironmentStatus } from './env';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = supabaseEnvironmentStatus.url ?? 'https://invalid.supabase.local';
+const supabaseKey = supabaseEnvironmentStatus.anonKey ?? 'missing-supabase-anon-key';
 
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error(
-    'Supabase URL and anonymous key are required. ' +
-    'Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment variables.'
-  );
+if (!supabaseEnvironmentStatus.isConfigured) {
+  logMissingSupabaseEnvironment();
+}
+
+function createSafeAuthStorage() {
+  const memoryStorage = new Map<string, string>();
+
+  return {
+    getItem(key: string) {
+      try {
+        if (typeof window !== 'undefined') {
+          return window.localStorage.getItem(key) || window.sessionStorage.getItem(key);
+        }
+      } catch {
+        // Fall back to memory storage.
+      }
+
+      return memoryStorage.get(key) ?? null;
+    },
+    setItem(key: string, value: string) {
+      memoryStorage.set(key, value);
+
+      if (typeof window === 'undefined') {
+        return;
+      }
+
+      try {
+        window.localStorage.setItem(key, value);
+        window.sessionStorage.setItem(key, value);
+      } catch {
+        // Ignore storage failures so auth never crashes rendering.
+      }
+    },
+    removeItem(key: string) {
+      memoryStorage.delete(key);
+
+      if (typeof window === 'undefined') {
+        return;
+      }
+
+      try {
+        window.localStorage.removeItem(key);
+        window.sessionStorage.removeItem(key);
+      } catch {
+        // Ignore storage failures so auth never crashes rendering.
+      }
+    },
+  };
 }
 
 /**
@@ -18,28 +62,14 @@ if (!supabaseUrl || !supabaseKey) {
  */
 export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
   auth: {
-    // Persist session across browser tabs and refreshes
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true,
-    // Storage options for better session persistence
-    storage: {
-      getItem: (key: string) => {
-        // Use localStorage with fallback to sessionStorage
-        return localStorage.getItem(key) || sessionStorage.getItem(key);
-      },
-      setItem: (key: string, value: string) => {
-        // Store in both localStorage and sessionStorage
-        localStorage.setItem(key, value);
-        sessionStorage.setItem(key, value);
-      },
-      removeItem: (key: string) => {
-        localStorage.removeItem(key);
-        sessionStorage.removeItem(key);
-      },
-    },
+    detectSessionInUrl: typeof window !== 'undefined',
+    storage: createSafeAuthStorage(),
   },
 });
+
+export const isSupabaseConfigured = supabaseEnvironmentStatus.isConfigured;
 
 /**
  * Get the current authenticated user
@@ -93,8 +123,7 @@ export const signUp = async (email: string, password: string) => {
     email,
     password,
     options: {
-      // Redirect URL for email confirmation
-      emailRedirectTo: `${window.location.origin}/auth/callback`,
+      emailRedirectTo: `${getAppOrigin()}/auth/callback`,
     },
   });
 };
@@ -116,8 +145,7 @@ export const signInWithOAuth = async (provider: 'github' | 'google') => {
   return supabase.auth.signInWithOAuth({
     provider,
     options: {
-      // Redirect after OAuth flow
-      redirectTo: `${window.location.origin}/auth/callback`,
+      redirectTo: `${getAppOrigin()}/auth/callback`,
       skipBrowserWarning: true,
     },
   });
@@ -142,7 +170,7 @@ export const signOutAllDevices = async () => {
  */
 export const resetPassword = async (email: string) => {
   return supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/reset-password`,
+    redirectTo: `${getAppOrigin()}/reset-password`,
   });
 };
 
@@ -182,7 +210,7 @@ export const sendMagicLink = async (email: string) => {
   return supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `${window.location.origin}/auth/callback`,
+      emailRedirectTo: `${getAppOrigin()}/auth/callback`,
     },
   });
 };

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { User, Session } from '@supabase/supabase-js';
-import { supabase, onAuthStateChange } from '../lib/supabase';
+import { isSupabaseConfigured, supabase } from '../lib/supabase';
 
 interface AuthContextType {
   user: User | null;
@@ -18,6 +18,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!isSupabaseConfigured) {
+      console.error(
+        'AuthProvider started without Supabase configuration. Authentication features will be disabled until VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set.'
+      );
+      setUser(null);
+      setSession(null);
+      setLoading(false);
+      return;
+    }
+
     // Attempt to recover session on mount
     const recoverSession = async () => {
       try {
@@ -120,6 +130,10 @@ export const useAuthReady = () => {
  */
 export const useRequireAuth = () => {
   const { user, loading, isAuthenticated } = useAuth();
+
+  if (!isSupabaseConfigured) {
+    return null;
+  }
 
   if (!loading && !isAuthenticated) {
     throw new Error('User not authenticated');

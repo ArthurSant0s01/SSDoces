@@ -1,16 +1,21 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { supabase } from '@/lib/supabase';
+import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import { AuthLayout } from '@/components/auth/AuthLayout';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, CheckCircle2, Clock, Mail } from 'lucide-react';
+import { SupabaseUnavailablePage } from '@/components/SupabaseUnavailablePage';
 
 export const Route = createFileRoute('/verify-email')({
   component: VerifyEmailPage,
 });
 
 function VerifyEmailPage() {
+  if (!isSupabaseConfigured) {
+    return <SupabaseUnavailablePage title="Verificação de email indisponível" />;
+  }
+
   const { user, session } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isVerified, setIsVerified] = useState(false);

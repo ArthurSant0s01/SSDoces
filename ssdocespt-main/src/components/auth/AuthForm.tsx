@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { signIn, signUp, signOut } from '@/lib/supabase';
+import { isSupabaseConfigured, signIn, signUp, signOut } from '@/lib/supabase';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { SupabaseUnavailablePage } from '@/components/SupabaseUnavailablePage';
 
 export const AuthForm = () => {
   const { user, loading } = useAuth();
@@ -12,6 +13,10 @@ export const AuthForm = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  if (!isSupabaseConfigured) {
+    return <SupabaseUnavailablePage title="Autenticação indisponível" />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,11 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { requireAuth } from '@/lib/route-guards';
 import { useAuth } from '@/hooks/use-auth';
-import { signOut } from '@/lib/supabase';
+import { isSupabaseConfigured, signOut } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, LogOut, Settings, Mail, CheckCircle2 } from 'lucide-react';
 import { useState } from 'react';
+import { SupabaseUnavailablePage } from '@/components/SupabaseUnavailablePage';
 
 export const Route = createFileRoute('/dashboard')({
   beforeLoad: async () => {
@@ -15,6 +16,10 @@ export const Route = createFileRoute('/dashboard')({
 });
 
 function DashboardPage() {
+  if (!isSupabaseConfigured) {
+    return <SupabaseUnavailablePage title="Dashboard indisponível" />;
+  }
+
   const { user, isEmailVerified } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);

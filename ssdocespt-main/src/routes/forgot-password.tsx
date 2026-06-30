@@ -1,17 +1,22 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
-import { resetPassword } from '@/lib/supabase';
+import { isSupabaseConfigured, resetPassword } from '@/lib/supabase';
 import { AuthLayout } from '@/components/auth/AuthLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, CheckCircle2, ArrowLeft, Mail } from 'lucide-react';
+import { SupabaseUnavailablePage } from '@/components/SupabaseUnavailablePage';
 
 export const Route = createFileRoute('/forgot-password')({
   component: ForgotPasswordPage,
 });
 
 function ForgotPasswordPage() {
+  if (!isSupabaseConfigured) {
+    return <SupabaseUnavailablePage title="Recuperação de senha indisponível" />;
+  }
+
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);

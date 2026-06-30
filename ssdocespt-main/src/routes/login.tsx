@@ -2,12 +2,13 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { requireGuest } from '@/lib/route-guards';
-import { signIn, signInWithOAuth } from '@/lib/supabase';
+import { isSupabaseConfigured, signIn, signInWithOAuth } from '@/lib/supabase';
 import { AuthLayout } from '@/components/auth/AuthLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, CheckCircle2, Github, Mail } from 'lucide-react';
+import { SupabaseUnavailablePage } from '@/components/SupabaseUnavailablePage';
 
 export const Route = createFileRoute('/login')({
   beforeLoad: async () => {
@@ -17,6 +18,10 @@ export const Route = createFileRoute('/login')({
 });
 
 function LoginPage() {
+  if (!isSupabaseConfigured) {
+    return <SupabaseUnavailablePage title="Login indisponível" />;
+  }
+
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

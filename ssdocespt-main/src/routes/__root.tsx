@@ -22,6 +22,7 @@ import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { AuthProvider } from "@/hooks/use-auth";
 import { FloatingWhatsAppButton } from "@/components/FloatingWhatsAppButton";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 function NotFoundComponent() {
   return (
@@ -154,19 +155,21 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <div className="flex min-h-dvh flex-col">
-          <SiteHeader />
-          <main className="flex-1">
-            <Outlet />
-          </main>
-          <SiteFooter />
-          <FloatingWhatsAppButton 
-            phoneNumber="5511999999999"
-            message="Olá! Gostaria de mais informações sobre os brigadeiros SSDoces. 😊"
-          />
-        </div>
-      </AuthProvider>
+      <ErrorBoundary>
+        <AuthProvider>
+          <div className="flex min-h-dvh flex-col">
+            <SiteHeader />
+            <main className="flex-1">
+              <Outlet />
+            </main>
+            <SiteFooter />
+            <FloatingWhatsAppButton 
+              phoneNumber="5511999999999"
+              message="Olá! Gostaria de mais informações sobre os brigadeiros SSDoces. 😊"
+            />
+          </div>
+        </AuthProvider>
+      </ErrorBoundary>
     </QueryClientProvider>
   );
 }

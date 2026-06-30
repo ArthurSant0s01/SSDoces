@@ -1,5 +1,6 @@
 import { redirect } from '@tanstack/react-router';
-import { supabase } from './supabase';
+import { getCurrentPathname } from './env';
+import { isSupabaseConfigured, supabase } from './supabase';
 
 /**
  * Route guard for protected routes
@@ -7,6 +8,13 @@ import { supabase } from './supabase';
  * Redirects to login if not authenticated
  */
 export const requireAuth = async () => {
+  if (!isSupabaseConfigured) {
+    console.error(
+      'Authentication is unavailable because Supabase is not configured. Skipping auth guard and letting the route render a fallback state.'
+    );
+    return null;
+  }
+
   const {
     data: { session },
     error,
@@ -16,7 +24,7 @@ export const requireAuth = async () => {
     throw redirect({
       to: '/login',
       search: {
-        redirect: window.location.pathname,
+        redirect: getCurrentPathname(),
       },
     });
   }
@@ -29,6 +37,13 @@ export const requireAuth = async () => {
  * Redirects to home if user is already authenticated
  */
 export const requireGuest = async () => {
+  if (!isSupabaseConfigured) {
+    console.error(
+      'Guest auth guard skipped because Supabase is not configured. The route will render a friendly fallback page instead.'
+    );
+    return null;
+  }
+
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -47,6 +62,13 @@ export const requireGuest = async () => {
  * You may need to adjust this based on your user metadata structure
  */
 export const requireAdmin = async () => {
+  if (!isSupabaseConfigured) {
+    console.error(
+      'Admin auth guard skipped because Supabase is not configured. The route will render a friendly fallback page instead.'
+    );
+    return null;
+  }
+
   const {
     data: { session },
     error,
