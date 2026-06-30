@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start';
 import { Resend } from 'resend';
+import { sendWhatsAppNotification } from './twilio';
 
 import { supabaseEnvironmentStatus } from '@/lib/env';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
@@ -214,7 +215,22 @@ export const createOrder = createServerFn({ method: 'POST' })
       console.error('Erro Supabase ao inserir orders:', formatSupabaseError(orderError));
       throw new Error('Não foi possível registar a encomenda. Tente novamente dentro de instantes.');
     }
+await sendWhatsAppNotification(`
+🛒 Nova encomenda recebida!
 
+Cliente: ${data.customerName}
+Telefone: ${data.customerPhone}
+Email: ${data.customerEmail}
+
+Total: €${data.total}
+
+Método de pagamento: ${data.paymentMethod}
+
+Data de recolha: ${data.pickupDate}
+Hora: ${data.pickupTime}
+
+Número da encomenda: ${createdOrder.order_number}
+`);
     if (!createdOrder.id || !isUuid(createdOrder.id)) {
       await deleteCreatedOrder(supabase, createdOrder.id);
       throw new Error('Não foi possível validar o identificador da encomenda criada. A operação foi cancelada.');
