@@ -1,5 +1,13 @@
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim();
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
+const viteEnv = import.meta.env as Record<string, string | undefined>;
+
+function readEnvValue(key: string) {
+  return viteEnv[key]?.trim() || process.env[key]?.trim() || undefined;
+}
+
+export const isDevelopment = Boolean(viteEnv.DEV || process.env.NODE_ENV !== 'production');
+
+const supabaseUrl = readEnvValue('VITE_SUPABASE_URL');
+const supabaseAnonKey = readEnvValue('VITE_SUPABASE_ANON_KEY');
 
 export const supabaseEnvironmentStatus = {
   isConfigured: Boolean(supabaseUrl && supabaseAnonKey),
@@ -19,10 +27,12 @@ export function logMissingSupabaseEnvironment() {
   }
 
   hasLoggedSupabaseEnvironmentIssue = true;
-  console.error(
-    `Supabase is not configured. Missing environment variables: ${supabaseEnvironmentStatus.missingKeys.join(', ')}. ` +
-      'The app will continue to render, but auth and database features will be unavailable until these variables are added.'
-  );
+  if (isDevelopment) {
+    console.warn(
+      `Supabase is not configured. Missing environment variables: ${supabaseEnvironmentStatus.missingKeys.join(', ')}. ` +
+        'The app will continue to render, but auth and database features will be unavailable until these variables are added.'
+    );
+  }
 }
 
 export function getAppOrigin() {
@@ -30,7 +40,7 @@ export function getAppOrigin() {
     return window.location.origin;
   }
 
-  return import.meta.env.VITE_SITE_URL || 'https://ssdoces.pt';
+  return readEnvValue('VITE_SITE_URL') || 'https://ssdoces.pt';
 }
 
 export function getCurrentPathname() {

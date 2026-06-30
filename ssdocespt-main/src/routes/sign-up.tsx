@@ -47,10 +47,6 @@ const getPasswordStrength = (password: string): PasswordStrength => {
 };
 
 function SignUpPage() {
-  if (!isSupabaseConfigured) {
-    return <SupabaseUnavailablePage title="Registo indisponível" />;
-  }
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -61,6 +57,10 @@ function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+  if (!isSupabaseConfigured) {
+    return <SupabaseUnavailablePage title="Registo indisponível" />;
+  }
 
   const passwordStrength = getPasswordStrength(password);
   const passwordsMatch = password === confirmPassword && password.length > 0;

@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
-import { logMissingSupabaseEnvironment } from './env';
+import { isDevelopment, logMissingSupabaseEnvironment, supabaseEnvironmentStatus } from './env';
 
 /**
  * Server-side Supabase client
@@ -8,10 +8,13 @@ import { logMissingSupabaseEnvironment } from './env';
  * ONLY to be used on the server, never expose to browser
  */
 export const createServerSupabaseClient = () => {
-  const supabaseUrl = process.env.VITE_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const supabaseUrl =
+    supabaseEnvironmentStatus.url ?? process.env.VITE_SUPABASE_URL?.trim() ?? process.env.SUPABASE_URL?.trim();
+  const anonKey =
+    supabaseEnvironmentStatus.anonKey ?? process.env.VITE_SUPABASE_ANON_KEY?.trim() ?? process.env.SUPABASE_ANON_KEY?.trim();
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 
-  if (!supabaseUrl) {
+  if (!supabaseUrl || !anonKey) {
     logMissingSupabaseEnvironment();
     return createClient<Database>('https://invalid.supabase.local', 'missing-service-role-key', {
       auth: {
@@ -22,13 +25,13 @@ export const createServerSupabaseClient = () => {
     });
   }
 
-  if (!serviceRoleKey) {
-    console.error(
-      'Supabase service role key is missing. Server-side admin operations will be unavailable until SUPABASE_SERVICE_ROLE_KEY is configured.'
+  if (!serviceRoleKey && isDevelopment) {
+    console.warn(
+      'SUPABASE_SERVICE_ROLE_KEY is missing. Server-side admin operations will be limited to the anon key and may fail if RLS blocks them.'
     );
   }
 
-  return createClient<Database>(supabaseUrl, serviceRoleKey ?? 'missing-service-role-key', {
+  return createClient<Database>(supabaseUrl, serviceRoleKey || anonKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,

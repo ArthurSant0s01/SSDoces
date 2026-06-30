@@ -1,13 +1,125 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
-import { getAppOrigin, logMissingSupabaseEnvironment, supabaseEnvironmentStatus } from './env';
-
-const supabaseUrl = supabaseEnvironmentStatus.url ?? 'https://invalid.supabase.local';
-const supabaseKey = supabaseEnvironmentStatus.anonKey ?? 'missing-supabase-anon-key';
+import { getAppOrigin, isDevelopment, logMissingSupabaseEnvironment, supabaseEnvironmentStatus } from './env';
 
 if (!supabaseEnvironmentStatus.isConfigured) {
   logMissingSupabaseEnvironment();
 }
+
+const disabledSupabaseError = new Error(
+  'Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable auth and database features.'
+);
+
+function createDisabledQueryBuilder() {
+  const builder: any = {
+    select: () => builder,
+    insert: () => builder,
+    update: () => builder,
+    delete: () => builder,
+    upsert: () => builder,
+    eq: () => builder,
+    neq: () => builder,
+    in: () => builder,
+    order: () => builder,
+    range: () => builder,
+    limit: () => builder,
+    ilike: () => builder,
+    like: () => builder,
+    or: () => builder,
+    filter: () => builder,
+    contains: () => builder,
+    textSearch: () => builder,
+    schema: () => createDisabledSupabaseClient(),
+    single: async () => ({ data: null, error: disabledSupabaseError }),
+    maybeSingle: async () => ({ data: null, error: disabledSupabaseError }),
+    then: (onFulfilled: any, onRejected: any) =>
+      Promise.resolve({ data: null, error: disabledSupabaseError }).then(onFulfilled, onRejected),
+  };
+
+  return builder;
+}
+
+function createDisabledAuthApi() {
+  return {
+    getUser: async () => ({ data: { user: null }, error: disabledSupabaseError }),
+    getSession: async () => ({ data: { session: null }, error: disabledSupabaseError }),
+    signUp: async () => ({ data: { user: null, session: null }, error: disabledSupabaseError }),
+    signInWithPassword: async () => ({ data: { user: null, session: null }, error: disabledSupabaseError }),
+    signInWithOAuth: async () => ({ data: { provider: null, url: null }, error: disabledSupabaseError }),
+    signOut: async () => ({ error: disabledSupabaseError }),
+    signInWithOtp: async () => ({ data: { user: null, session: null }, error: disabledSupabaseError }),
+    resetPasswordForEmail: async () => ({ data: null, error: disabledSupabaseError }),
+    updateUser: async () => ({ data: { user: null }, error: disabledSupabaseError }),
+    resend: async () => ({ data: null, error: disabledSupabaseError }),
+    onAuthStateChange: () => ({
+      data: {
+        subscription: {
+          unsubscribe() {},
+        },
+      },
+    }),
+    admin: {
+      getUserById: async () => ({ data: { user: null }, error: disabledSupabaseError }),
+      updateUserById: async () => ({ data: { user: null }, error: disabledSupabaseError }),
+      deleteUser: async () => ({ data: null, error: disabledSupabaseError }),
+    },
+  };
+}
+
+function createDisabledStorageApi() {
+  return {
+    from: () => ({
+      upload: async () => ({ data: null, error: disabledSupabaseError }),
+      download: async () => ({ data: null, error: disabledSupabaseError }),
+      remove: async () => ({ data: null, error: disabledSupabaseError }),
+      createSignedUrl: async () => ({ data: null, error: disabledSupabaseError }),
+      getPublicUrl: () => ({ data: { publicUrl: '' } }),
+    }),
+  };
+}
+
+function createDisabledFunctionsApi() {
+  return {
+    invoke: async () => ({ data: null, error: disabledSupabaseError }),
+  };
+}
+
+function createDisabledChannel() {
+  const channel: any = {
+    on: () => channel,
+    subscribe: () => channel,
+    unsubscribe() {},
+    track: async () => ({ data: null, error: disabledSupabaseError }),
+    presenceState: () => ({}),
+  };
+
+  return channel;
+}
+
+function createDisabledSupabaseClient() {
+  const disabledClient: Partial<SupabaseClient<Database>> = {
+    auth: createDisabledAuthApi() as SupabaseClient<Database>['auth'],
+    from: () => createDisabledQueryBuilder() as any,
+    storage: createDisabledStorageApi() as SupabaseClient<Database>['storage'],
+    functions: createDisabledFunctionsApi() as SupabaseClient<Database>['functions'],
+    channel: () => createDisabledChannel() as any,
+    rpc: () => createDisabledQueryBuilder() as any,
+    schema: () => disabledClient as SupabaseClient<Database>,
+  };
+
+  return disabledClient as SupabaseClient<Database>;
+}
+
+const supabase = supabaseEnvironmentStatus.isConfigured
+  ? createClient<Database>(supabaseEnvironmentStatus.url!, supabaseEnvironmentStatus.anonKey!, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: typeof window !== 'undefined',
+        storage: createSafeAuthStorage(),
+      },
+    })
+  : createDisabledSupabaseClient();
 
 function createSafeAuthStorage() {
   const memoryStorage = new Map<string, string>();
@@ -56,18 +168,10 @@ function createSafeAuthStorage() {
 }
 
 /**
- * Supabase client instance for the browser
- * Uses the anonymous key for public operations
- * Configured with session persistence and auto-refresh
+ * Supabase client instance for the browser.
+ * Falls back to a disabled client when env vars are missing so the app can still render.
  */
-export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: typeof window !== 'undefined',
-    storage: createSafeAuthStorage(),
-  },
-});
+export { supabase };
 
 export const isSupabaseConfigured = supabaseEnvironmentStatus.isConfigured;
 
@@ -198,6 +302,10 @@ export const updateEmail = async (newEmail: string) => {
 export const onAuthStateChange = (
   callback: (event: string, session: any) => void
 ) => {
+  if (!isSupabaseConfigured && isDevelopment) {
+    console.warn('Supabase auth listeners are disabled because the environment is missing.');
+  }
+
   return supabase.auth.onAuthStateChange((event, session) => {
     callback(event, session);
   });

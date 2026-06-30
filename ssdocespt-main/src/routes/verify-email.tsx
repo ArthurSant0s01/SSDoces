@@ -12,16 +12,16 @@ export const Route = createFileRoute('/verify-email')({
 });
 
 function VerifyEmailPage() {
-  if (!isSupabaseConfigured) {
-    return <SupabaseUnavailablePage title="Verificação de email indisponível" />;
-  }
-
   const { user, session } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isVerified, setIsVerified] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [canResend, setCanResend] = useState(false);
   const [isSending, setIsSending] = useState(false);
+
+  if (!isSupabaseConfigured) {
+    return <SupabaseUnavailablePage title="Verificação de email indisponível" />;
+  }
 
   useEffect(() => {
     // Check if email is already verified

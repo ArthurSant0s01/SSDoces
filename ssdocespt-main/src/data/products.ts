@@ -3,6 +3,7 @@ import pistacio from "@/assets/product-pistacio.jpg";
 import caramelo from "@/assets/product-caramelo.jpg";
 import coco from "@/assets/product-coco.jpg";
 import type { Product as DatabaseProduct } from "@/lib/database.types";
+import { resolveProductImage } from "@/lib/product-images";
 
 export type Product = {
   slug: string;
@@ -97,8 +98,8 @@ export function toDatabaseProduct(product: Product, index: number): DatabaseProd
     long_description: product.longDescription,
     price: product.price,
     discount_price: undefined,
-    image_url: product.image,
-    images: [product.image],
+    image_url: resolveProductImage(product.image),
+    images: [resolveProductImage(product.image)],
     quantity_in_stock: 24 - index * 3,
     sku: `SSD-${String(index + 1).padStart(3, '0')}`,
     is_featured: index < 3,

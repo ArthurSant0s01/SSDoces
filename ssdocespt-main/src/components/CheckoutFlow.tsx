@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useCartStore } from '@/store/cart';
+import { isSupabaseConfigured } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,7 +11,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, CheckCircle2, CalendarClock, CreditCard, Minus, Plus, ShieldCheck, Trash2 } from 'lucide-react';
-import { getPaymentInstructions, getPaymentMethodLabel, orderFormSchema, paymentMethodOptions, type OrderFormInput } from '@/lib/order-schema';
+import { getPaymentInstructions, getPaymentMethodLabel, orderFormSchema, type OrderFormInput } from '@/lib/order-schema';
 
 interface CheckoutProps {
   onOrderSubmit?: (orderData: OrderFormInput) => Promise<{ orderNumber: string; paymentInstructions: string }>;
@@ -44,8 +45,14 @@ export function CheckoutFlow({ onOrderSubmit }: CheckoutProps) {
   const subtotal = getTotalPrice();
   const total = subtotal;
 
-  const orderPayload = useMemo<OrderFormInput>(() => ({
-    ...formData,
+  const buildCheckoutPayload = () => ({
+    customerName: formData.fullName.trim(),
+    customerEmail: formData.email.trim().toLowerCase(),
+    customerPhone: formData.whatsapp.trim(),
+    notes: formData.additionalNotes.trim(),
+    pickupDate: formData.pickupDate.trim(),
+    pickupTime: formData.pickupTime.trim(),
+    paymentMethod: formData.paymentMethod,
     items: items.map((item) => ({
       productId: item.productId,
       name: item.name,
@@ -56,19 +63,29 @@ export function CheckoutFlow({ onOrderSubmit }: CheckoutProps) {
     })),
     subtotal,
     total,
-  }), [formData, items, subtotal, total]);
+  } satisfies OrderFormInput);
 
-  const validateCurrentStep = () => {
-    const result = orderFormSchema.safeParse(orderPayload);
+  const validatePayload = (payload: OrderFormInput) => {
+    const result = orderFormSchema.safeParse(payload);
 
     if (!result.success) {
-      setError(result.error.issues[0]?.message || 'Verifique os dados da encomenda.');
+      setError('Preencha todos os campos obrigatórios da encomenda antes de continuar.');
       return false;
     }
 
-    const pickup = new Date(`${formData.pickupDate}T${formData.pickupTime}:00`);
+    const pickup = new Date(`${payload.pickupDate}T${payload.pickupTime}:00`);
     if (Number.isNaN(pickup.getTime()) || pickup.getTime() < Date.now()) {
       setError('Selecione uma data e hora de recolha futuras.');
+      return false;
+    }
+
+    return true;
+  };
+
+  const validateCurrentStep = () => {
+    const payload = buildCheckoutPayload();
+
+    if (!validatePayload(payload)) {
       return false;
     }
 
@@ -77,7 +94,19 @@ export function CheckoutFlow({ onOrderSubmit }: CheckoutProps) {
   };
 
   const handleSubmitOrder = async () => {
+    if (!isSupabaseConfigured) {
+      setError('O checkout está indisponível até configurar o Supabase. O carrinho continua a funcionar localmente.');
+      return;
+    }
+
     if (!validateCurrentStep()) {
+      return;
+    }
+
+    const payload = buildCheckoutPayload();
+    console.log('Checkout payload:', payload);
+
+    if (!validatePayload(payload)) {
       return;
     }
 
@@ -86,7 +115,7 @@ export function CheckoutFlow({ onOrderSubmit }: CheckoutProps) {
 
     try {
       if (onOrderSubmit) {
-        const response = await onOrderSubmit(orderPayload);
+        const response = await onOrderSubmit(payload);
         setSuccessData(response);
       }
 
@@ -132,6 +161,15 @@ export function CheckoutFlow({ onOrderSubmit }: CheckoutProps) {
           </div>
         </div>
       </div>
+
+      {!isSupabaseConfigured && (
+        <Alert className="border-amber-200 bg-amber-50 text-amber-900">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            O checkout está em modo de espera porque o Supabase não está configurado neste ambiente. Pode continuar a adicionar produtos ao carrinho, mas a criação de encomendas fica desativada até definir as variáveis de ambiente.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {step === 'confirmation' && (
         <div className="rounded-[2rem] border border-border bg-card p-10 text-center shadow-[var(--shadow-soft)] space-y-6">
@@ -319,10 +357,10 @@ export function CheckoutFlow({ onOrderSubmit }: CheckoutProps) {
                   </Button>
                   <Button
                     onClick={handleSubmitOrder}
-                    disabled={loading}
+                    disabled={loading || !isSupabaseConfigured}
                     className="flex-1"
                   >
-                    {loading ? 'A criar encomenda...' : 'Confirmar encomenda'}
+                    {loading ? 'A criar encomenda...' : !isSupabaseConfigured ? 'Checkout indisponível' : 'Confirmar encomenda'}
                   </Button>
                 </div>
               </>

@@ -165,10 +165,7 @@ function RootComponent() {
               <Outlet />
             </main>
             <SiteFooter />
-            <FloatingWhatsAppButton 
-              phoneNumber="5511999999999"
-              message="Olá! Gostaria de mais informações sobre os brigadeiros SSDoces. 😊"
-            />
+            <FloatingWhatsAppButton />
           </div>
         </AuthProvider>
       </ErrorBoundary>

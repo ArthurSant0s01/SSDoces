@@ -1,52 +1,88 @@
 import { createServerFn } from '@tanstack/react-start';
-import { randomUUID } from 'node:crypto';
 import { Resend } from 'resend';
 
+import { supabaseEnvironmentStatus } from '@/lib/env';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 import { getPaymentInstructions, getPaymentMethodLabel, orderFormSchema, serializeOrderMetadata } from '@/lib/order-schema';
 
-type ColumnInfo = {
-  column_name: string;
-  is_nullable: 'YES' | 'NO';
+type OrderItemsInsertRow = {
+  order_id: string;
+  product_id: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
 };
 
-let ordersColumnsCache: Promise<Map<string, ColumnInfo>> | null = null;
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-async function getOrdersColumns(supabase: ReturnType<typeof createServerSupabaseClient>) {
-  if (!ordersColumnsCache) {
-    ordersColumnsCache = supabase
-      .schema('information_schema')
-      .from('columns')
-      .select('column_name, is_nullable')
-      .eq('table_schema', 'public')
-      .eq('table_name', 'orders')
-      .then(({ data, error }) => {
-        if (error || !data) {
-          console.error('Failed to inspect orders columns:', error);
-          return new Map<string, ColumnInfo>();
-        }
+type SupabaseLikeError = {
+  code?: string;
+  message?: string;
+  details?: string;
+  hint?: string;
+};
 
-        return new Map<string, ColumnInfo>(data.map((column) => [column.column_name, column as ColumnInfo]));
-      });
-  }
-
-  return ordersColumnsCache;
+function isUuid(value: string) {
+  return UUID_REGEX.test(value);
 }
 
-async function resolveFallbackUserId(supabase: ReturnType<typeof createServerSupabaseClient>) {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('id, role')
-    .in('role', ['admin', 'staff', 'customer'])
-    .limit(1);
-
-  if (error || !data?.length) {
-    console.error('Failed to resolve fallback user id for guest checkout:', error);
-    throw new Error('A base de dados atual ainda exige um utilizador associado à encomenda. Execute a migração 004 antes de aceitar encomendas públicas.');
+function formatSupabaseError(error: SupabaseLikeError | null | undefined) {
+  if (!error) {
+    return null;
   }
 
-  console.warn('Orders.user_id is still required. Using an existing profile as fallback owner for guest checkout compatibility.');
-  return data[0].id;
+  return {
+    code: error.code,
+    message: error.message,
+    details: error.details,
+    hint: error.hint,
+  };
+}
+
+async function resolveProductIdsForCheckout(
+  supabase: ReturnType<typeof createServerSupabaseClient>,
+  items: ReturnType<typeof orderFormSchema.parse>['items']
+) {
+  const uniqueRefs = Array.from(new Set(items.map((item) => item.productId.trim()).filter(Boolean)));
+  const refsThatAreUuid = uniqueRefs.filter((ref) => isUuid(ref));
+  const refsThatAreSlug = uniqueRefs.filter((ref) => !isUuid(ref));
+
+  const idMap = new Map<string, string>();
+  const slugMap = new Map<string, string>();
+
+  if (refsThatAreUuid.length > 0) {
+    const { data, error } = await supabase.from('products').select('id').in('id', refsThatAreUuid);
+    if (error) {
+      throw new Error(`Falha ao validar produtos por ID: ${error.message}`);
+    }
+
+    for (const row of data ?? []) {
+      idMap.set(row.id, row.id);
+    }
+  }
+
+  if (refsThatAreSlug.length > 0) {
+    const { data, error } = await supabase.from('products').select('id, slug').in('slug', refsThatAreSlug);
+    if (error) {
+      throw new Error(`Falha ao resolver produtos por slug: ${error.message}`);
+    }
+
+    for (const row of data ?? []) {
+      slugMap.set(row.slug, row.id);
+    }
+  }
+
+  const unresolvedRefs = uniqueRefs.filter((ref) => !idMap.has(ref) && !slugMap.has(ref));
+
+  return {
+    idMap,
+    slugMap,
+    unresolvedRefs,
+  };
+}
+
+async function deleteCreatedOrder(supabase: ReturnType<typeof createServerSupabaseClient>, orderId: string) {
+  await supabase.from('orders').delete().eq('id', orderId);
 }
 
 function normalizePaymentMethod(method: ReturnType<typeof orderFormSchema.parse>['paymentMethod']) {
@@ -80,16 +116,16 @@ function buildOrderEmailHtml(orderNumber: string, data: ReturnType<typeof orderF
     <div style="font-family:Arial,sans-serif;color:#1f2937;line-height:1.6;">
       <h2>Nova encomenda SSDoces</h2>
       <p><strong>Número:</strong> ${orderNumber}</p>
-      <p><strong>Cliente:</strong> ${data.fullName}</p>
-      <p><strong>Email:</strong> ${data.email}</p>
-      <p><strong>WhatsApp:</strong> ${data.whatsapp}</p>
+      <p><strong>Cliente:</strong> ${data.customerName}</p>
+      <p><strong>Email:</strong> ${data.customerEmail}</p>
+      <p><strong>WhatsApp:</strong> ${data.customerPhone}</p>
       <p><strong>Recolha:</strong> ${data.pickupDate} às ${data.pickupTime}</p>
       <p><strong>Pagamento:</strong> ${getPaymentMethodLabel(data.paymentMethod)}</p>
       <p><strong>Instruções:</strong> ${getPaymentInstructions(data.paymentMethod)}</p>
       <p><strong>Total:</strong> €${data.total.toFixed(2)}</p>
       <h3>Produtos</h3>
       <ul>${itemsHtml}</ul>
-      ${data.additionalNotes ? `<p><strong>Observações:</strong> ${data.additionalNotes}</p>` : ''}
+      ${data.notes ? `<p><strong>Observações:</strong> ${data.notes}</p>` : ''}
     </div>
   `;
 }
@@ -98,7 +134,6 @@ async function sendOrderEmails(orderNumber: string, data: ReturnType<typeof orde
   const resendApiKey = process.env.RESEND_API_KEY;
 
   if (!resendApiKey) {
-    console.error('RESEND_API_KEY is missing. Order emails were skipped.');
     return;
   }
 
@@ -116,11 +151,11 @@ async function sendOrderEmails(orderNumber: string, data: ReturnType<typeof orde
     }),
     resend.emails.send({
       from,
-      to: data.email,
+      to: data.customerEmail,
       subject: `Recebemos a sua encomenda SSDoces ${orderNumber}`,
       html: `
         <div style="font-family:Arial,sans-serif;color:#1f2937;line-height:1.6;">
-          <h2>Obrigado pela sua encomenda, ${data.fullName}.</h2>
+          <h2>Obrigado pela sua encomenda, ${data.customerName}.</h2>
           <p>Recebemos o pedido <strong>${orderNumber}</strong> e vamos confirmar a recolha em Guimarães por mensagem.</p>
           <p><strong>Recolha:</strong> ${data.pickupDate} às ${data.pickupTime}</p>
           <p><strong>Pagamento:</strong> ${getPaymentMethodLabel(data.paymentMethod)}</p>
@@ -135,12 +170,16 @@ async function sendOrderEmails(orderNumber: string, data: ReturnType<typeof orde
 export const createOrder = createServerFn({ method: 'POST' })
   .validator(orderFormSchema)
   .handler(async ({ data }) => {
+    if (!supabaseEnvironmentStatus.isConfigured) {
+      throw new Error('O checkout está indisponível porque o Supabase não está configurado neste ambiente.');
+    }
+
     const supabase = createServerSupabaseClient();
     const orderNumber = buildOrderNumber();
     const pickupDateTime = new Date(`${data.pickupDate}T${data.pickupTime}:00`);
-    const ordersColumns = await getOrdersColumns(supabase);
     const metadataJson = serializeOrderMetadata(data);
     const baseInsert: Record<string, unknown> = {
+      user_id: null,
       order_number: orderNumber,
       status: 'pending',
       subtotal: data.subtotal,
@@ -151,78 +190,94 @@ export const createOrder = createServerFn({ method: 'POST' })
       payment_method: normalizePaymentMethod(data.paymentMethod),
       payment_status: 'pending',
       shipping_method: 'pickup_guimaraes',
-      notes: data.additionalNotes || null,
+      notes: data.notes || null,
       customer_notes: metadataJson,
       scheduled_pickup_date: pickupDateTime.toISOString(),
+      customer_name: data.customerName,
+      customer_email: data.customerEmail,
+      customer_phone: data.customerPhone,
+      pickup_date: data.pickupDate,
+      pickup_time: data.pickupTime,
+      payment_reference: data.paymentMethod === 'mb_way' ? '930935667' : null,
     };
 
-    if (ordersColumns.has('customer_name')) {
-      baseInsert.customer_name = data.fullName;
-    }
+    console.log('Payload enviado para orders:');
+    console.log(JSON.stringify(baseInsert, null, 2));
 
-    if (ordersColumns.has('customer_email')) {
-      baseInsert.customer_email = data.email;
-    }
-
-    if (ordersColumns.has('customer_phone')) {
-      baseInsert.customer_phone = data.whatsapp;
-    }
-
-    if (ordersColumns.has('pickup_date')) {
-      baseInsert.pickup_date = data.pickupDate;
-    }
-
-    if (ordersColumns.has('pickup_time')) {
-      baseInsert.pickup_time = data.pickupTime;
-    }
-
-    if (ordersColumns.has('payment_reference')) {
-      baseInsert.payment_reference = data.paymentMethod === 'mb_way' ? '930935667' : null;
-    }
-
-    const userIdColumn = ordersColumns.get('user_id');
-    if (userIdColumn?.is_nullable === 'NO') {
-      baseInsert.user_id = await resolveFallbackUserId(supabase);
-    } else {
-      baseInsert.user_id = null;
-    }
-
-    const { data: order, error: orderError } = await supabase
+    const { data: createdOrder, error: orderError } = await supabase
       .from('orders')
       .insert(baseInsert)
       .select('id, order_number')
       .single();
 
-    if (orderError || !order) {
-      console.error('Failed to create order:', orderError);
+    if (orderError || !createdOrder) {
+      console.error('Erro Supabase ao inserir orders:', formatSupabaseError(orderError));
       throw new Error('Não foi possível registar a encomenda. Tente novamente dentro de instantes.');
     }
 
-    const { error: itemsError } = await supabase.from('order_items').insert(
-      data.items.map((item) => ({
-        order_id: order.id,
-        product_id: item.productId,
-        quantity: item.quantity,
-        unit_price: item.unitPrice,
-        total_price: item.unitPrice * item.quantity,
-        special_requests: item.note || null,
-      }))
-    );
-
-    if (itemsError) {
-      console.error('Failed to create order items:', itemsError);
-      throw new Error('A encomenda foi criada sem os itens associados. Contacte a SSDoces para concluir o pedido.');
+    if (!createdOrder.id || !isUuid(createdOrder.id)) {
+      await deleteCreatedOrder(supabase, createdOrder.id);
+      throw new Error('Não foi possível validar o identificador da encomenda criada. A operação foi cancelada.');
     }
 
-    await sendOrderEmails(order.order_number, data);
+    const productResolution = await resolveProductIdsForCheckout(supabase, data.items);
+    if (productResolution.unresolvedRefs.length > 0) {
+      console.error('Produtos não encontrados para o checkout:', {
+        unresolvedRefs: productResolution.unresolvedRefs,
+      });
+      await deleteCreatedOrder(supabase, createdOrder.id);
+      throw new Error('Alguns produtos da encomenda já não existem. Atualize o carrinho e tente novamente.');
+    }
 
-    console.info(
-      `WhatsApp admin integration pending. Send message to +351930935667 for order ${order.order_number}.`
+    const orderItemsPayload: OrderItemsInsertRow[] = data.items.map((item) => ({
+      order_id: createdOrder.id,
+      product_id: productResolution.idMap.get(item.productId) || productResolution.slugMap.get(item.productId) || '',
+      quantity: item.quantity,
+      unit_price: item.unitPrice,
+      total_price: item.unitPrice * item.quantity,
+    }));
+
+    const invalidItem = orderItemsPayload.find(
+      (item) =>
+        !isUuid(item.order_id) ||
+        !isUuid(item.product_id) ||
+        !Number.isInteger(item.quantity) ||
+        item.quantity <= 0 ||
+        !Number.isFinite(item.unit_price) ||
+        item.unit_price <= 0 ||
+        !Number.isFinite(item.total_price) ||
+        item.total_price < 0
     );
 
+    if (invalidItem) {
+      console.error('Item inválido para inserção em order_items:', invalidItem);
+      await deleteCreatedOrder(supabase, createdOrder.id);
+      throw new Error('Foi detetado um item inválido no carrinho. Atualize a página e tente novamente.');
+    }
+
+    console.log('Payload enviado para order_items:');
+    console.log(JSON.stringify(orderItemsPayload, null, 2));
+
+    console.log('Order ID criado:', createdOrder.id);
+
+    const { error: itemsError } = await supabase.from('order_items').insert(orderItemsPayload);
+
+    if (itemsError) {
+      console.error('Erro Supabase ao inserir order_items:', {
+        code: itemsError.code,
+        message: itemsError.message,
+        details: itemsError.details,
+        hint: itemsError.hint,
+      });
+      await deleteCreatedOrder(supabase, createdOrder.id);
+      throw new Error('Não foi possível guardar os produtos da encomenda. A operação foi cancelada. Tente novamente.');
+    }
+
+    await sendOrderEmails(createdOrder.order_number, data);
+
     return {
-      orderId: order.id,
-      orderNumber: order.order_number,
+      orderId: createdOrder.id,
+      orderNumber: createdOrder.order_number,
       paymentInstructions: getPaymentInstructions(data.paymentMethod),
     };
   });

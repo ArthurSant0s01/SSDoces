@@ -13,14 +13,14 @@ export const Route = createFileRoute('/forgot-password')({
 });
 
 function ForgotPasswordPage() {
-  if (!isSupabaseConfigured) {
-    return <SupabaseUnavailablePage title="Recuperação de senha indisponível" />;
-  }
-
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  if (!isSupabaseConfigured) {
+    return <SupabaseUnavailablePage title="Recuperação de senha indisponível" />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

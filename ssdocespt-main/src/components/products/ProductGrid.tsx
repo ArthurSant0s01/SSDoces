@@ -16,6 +16,7 @@ import { CardContent, Card } from '@/components/ui/card';
 import { Heart, Star, Search } from 'lucide-react';
 import { useCartStore } from '@/store/cart';
 import { motion } from 'framer-motion';
+import { attachImageFallback, resolveProductImage } from '@/lib/product-images';
 
 const euro = new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' });
 
@@ -178,6 +179,9 @@ export function ProductGrid({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {products.map((product, idx) => (
+              (() => {
+                const imageUrl = resolveProductImage(product.image_url);
+                return (
               <motion.div
                 key={product.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -187,13 +191,13 @@ export function ProductGrid({
                 <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col">
                   {/* Image */}
                   <div className="relative aspect-square overflow-hidden bg-slate-100 dark:bg-slate-800">
-                    {product.image_url && (
-                      <img
-                        src={product.image_url}
-                        alt={product.name}
-                        className="h-full w-full object-cover hover:scale-110 transition-transform duration-300"
-                      />
-                    )}
+                    <img
+                      src={imageUrl}
+                      alt={product.name}
+                      loading="lazy"
+                      onError={attachImageFallback}
+                      className="h-full w-full object-cover hover:scale-110 transition-transform duration-300"
+                    />
                     {product.discount_price && (
                       <Badge className="absolute top-2 left-2 bg-red-500">
                         {Math.round((1 - product.discount_price / product.price) * 100)}% OFF
@@ -269,6 +273,8 @@ export function ProductGrid({
                   </CardContent>
                 </Card>
               </motion.div>
+                );
+              })()
             ))}
           </div>
         )}

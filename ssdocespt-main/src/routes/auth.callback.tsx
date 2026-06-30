@@ -11,10 +11,6 @@ function AuthCallback() {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
 
-  if (!isSupabaseConfigured) {
-    return <SupabaseUnavailablePage title="Autenticação indisponível" />;
-  }
-
   useEffect(() => {
     const handleCallback = async () => {
       try {
@@ -44,6 +40,10 @@ function AuthCallback() {
 
     handleCallback();
   }, [navigate]);
+
+  if (!isSupabaseConfigured) {
+    return <SupabaseUnavailablePage title="Autenticação indisponível" />;
+  }
 
   if (error) {
     return (

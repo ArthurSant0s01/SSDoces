@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { User, Session } from '@supabase/supabase-js';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
+import { isDevelopment } from '@/lib/env';
 
 interface AuthContextType {
   user: User | null;
@@ -19,9 +20,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (!isSupabaseConfigured) {
-      console.error(
-        'AuthProvider started without Supabase configuration. Authentication features will be disabled until VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set.'
-      );
+      if (isDevelopment) {
+        console.warn(
+          'AuthProvider started without Supabase configuration. Authentication features will be disabled until VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set.'
+        );
+      }
       setUser(null);
       setSession(null);
       setLoading(false);

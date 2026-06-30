@@ -18,10 +18,6 @@ export const Route = createFileRoute('/login')({
 });
 
 function LoginPage() {
-  if (!isSupabaseConfigured) {
-    return <SupabaseUnavailablePage title="Login indisponível" />;
-  }
-
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,6 +26,10 @@ function LoginPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<string | null>(null);
+
+  if (!isSupabaseConfigured) {
+    return <SupabaseUnavailablePage title="Login indisponível" />;
+  }
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -2,6 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { Instagram, MessageCircle, Mail } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 
+const whatsappMessage = encodeURIComponent('Olá! Eu gostaria de receber atualizações da minha encomenda.');
+
 export function SiteFooter() {
   return (
     <footer className="mt-24 border-t border-border/60 bg-secondary/40">
@@ -20,7 +22,7 @@ export function SiteFooter() {
           </p>
           <div className="mt-6 flex items-center gap-3">
             <a
-              href="https://wa.me/351930935667"
+              href={`https://wa.me/351930935667?text=${whatsappMessage}`}
               aria-label="WhatsApp"
               className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground/80 transition-colors hover:bg-foreground hover:text-background"
             >

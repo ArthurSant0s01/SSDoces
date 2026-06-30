@@ -18,10 +18,10 @@ export const orderItemSchema = z.object({
 });
 
 export const orderFormSchema = z.object({
-  fullName: z.string().min(3).max(120).transform(sanitizeText),
-  email: z.string().email().max(255).transform((value) => value.trim().toLowerCase()),
-  whatsapp: z.string().min(9).max(30).transform(sanitizeText),
-  additionalNotes: z.string().max(500).optional().transform((value) => (value ? sanitizeText(value) : '')),
+  customerName: z.string().min(3).max(120).transform(sanitizeText),
+  customerEmail: z.string().email().max(255).transform((value) => value.trim().toLowerCase()),
+  customerPhone: z.string().min(9).max(30).transform(sanitizeText),
+  notes: z.string().max(500).optional().transform((value) => (value ? sanitizeText(value) : '')),
   pickupDate: z.string().min(1),
   pickupTime: z.string().min(1),
   paymentMethod: z.enum(paymentMethodOptions),
@@ -67,20 +67,20 @@ export interface OrderMetadata {
   paymentMethod: OrderFormInput['paymentMethod'];
   paymentMethodLabel: string;
   paymentInstructions: string;
-  additionalNotes?: string;
+  notes?: string;
 }
 
 export function buildOrderMetadata(input: OrderFormInput): OrderMetadata {
   return {
-    customerName: input.fullName,
-    customerEmail: input.email,
-    customerPhone: input.whatsapp,
+    customerName: input.customerName,
+    customerEmail: input.customerEmail,
+    customerPhone: input.customerPhone,
     pickupDate: input.pickupDate,
     pickupTime: input.pickupTime,
     paymentMethod: input.paymentMethod,
     paymentMethodLabel: getPaymentMethodLabel(input.paymentMethod),
     paymentInstructions: getPaymentInstructions(input.paymentMethod),
-    additionalNotes: input.additionalNotes,
+    notes: input.notes,
   };
 }
 

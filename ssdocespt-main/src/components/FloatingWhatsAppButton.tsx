@@ -10,11 +10,11 @@ interface FloatingWhatsAppProps {
 
 export function FloatingWhatsAppButton({
   phoneNumber = '351930935667',
-  message = 'Olá! Gostaria de encomendar brigadeiros artesanais SSDoces.',
+  message = 'Olá! Eu gostaria de receber atualizações da minha encomenda.',
 }: FloatingWhatsAppProps) {
   const handleClick = () => {
     const encodedMessage = encodeURIComponent(message);
-    const whatsappURL = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`;
+    const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
     window.open(whatsappURL, '_blank');
   };
 

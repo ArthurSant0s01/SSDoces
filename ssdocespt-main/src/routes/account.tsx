@@ -18,13 +18,13 @@ export const Route = createFileRoute('/account')({
 });
 
 function AccountPage() {
-  if (!isSupabaseConfigured) {
-    return <SupabaseUnavailablePage title="Conta indisponível" />;
-  }
-
   const { user } = useAuth();
   const [profile, setProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  if (!isSupabaseConfigured) {
+    return <SupabaseUnavailablePage title="Conta indisponível" />;
+  }
 
   useEffect(() => {
     const loadProfile = async () => {

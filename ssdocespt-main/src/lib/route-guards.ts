@@ -1,5 +1,5 @@
 import { redirect } from '@tanstack/react-router';
-import { getCurrentPathname } from './env';
+import { getCurrentPathname, isDevelopment } from './env';
 import { isSupabaseConfigured, supabase } from './supabase';
 
 /**
@@ -9,9 +9,11 @@ import { isSupabaseConfigured, supabase } from './supabase';
  */
 export const requireAuth = async () => {
   if (!isSupabaseConfigured) {
-    console.error(
-      'Authentication is unavailable because Supabase is not configured. Skipping auth guard and letting the route render a fallback state.'
-    );
+    if (isDevelopment) {
+      console.warn(
+        'Authentication is unavailable because Supabase is not configured. Skipping auth guard and letting the route render a fallback state.'
+      );
+    }
     return null;
   }
 
@@ -38,9 +40,11 @@ export const requireAuth = async () => {
  */
 export const requireGuest = async () => {
   if (!isSupabaseConfigured) {
-    console.error(
-      'Guest auth guard skipped because Supabase is not configured. The route will render a friendly fallback page instead.'
-    );
+    if (isDevelopment) {
+      console.warn(
+        'Guest auth guard skipped because Supabase is not configured. The route will render a friendly fallback page instead.'
+      );
+    }
     return null;
   }
 
@@ -63,9 +67,11 @@ export const requireGuest = async () => {
  */
 export const requireAdmin = async () => {
   if (!isSupabaseConfigured) {
-    console.error(
-      'Admin auth guard skipped because Supabase is not configured. The route will render a friendly fallback page instead.'
-    );
+    if (isDevelopment) {
+      console.warn(
+        'Admin auth guard skipped because Supabase is not configured. The route will render a friendly fallback page instead.'
+      );
+    }
     return null;
   }
 

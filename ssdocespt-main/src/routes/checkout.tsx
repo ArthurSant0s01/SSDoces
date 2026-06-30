@@ -21,7 +21,7 @@ function CheckoutRouteComponent() {
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,#fff5ea,transparent_45%),linear-gradient(180deg,#fffdf9_0%,#fff8ef_100%)] dark:bg-slate-950">
       <div className="max-w-7xl mx-auto px-4 py-10">
-        <CheckoutFlow onOrderSubmit={createOrder} />
+        <CheckoutFlow onOrderSubmit={(payload) => createOrder({ data: payload })} />
       </div>
     </div>
   );

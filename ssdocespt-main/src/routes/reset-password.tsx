@@ -54,10 +54,6 @@ const getPasswordStrength = (password: string): PasswordStrength => {
 };
 
 function ResetPasswordPage() {
-  if (!isSupabaseConfigured) {
-    return <SupabaseUnavailablePage title="Redefinição de senha indisponível" />;
-  }
-
   const navigate = useNavigate();
   const search = useSearch({ from: '/reset-password' });
   const [password, setPassword] = useState('');
@@ -68,6 +64,10 @@ function ResetPasswordPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isValidToken, setIsValidToken] = useState(true);
+
+  if (!isSupabaseConfigured) {
+    return <SupabaseUnavailablePage title="Redefinição de senha indisponível" />;
+  }
 
   useEffect(() => {
     // Check if user has a valid session (came from email link)

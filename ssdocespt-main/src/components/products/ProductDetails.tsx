@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Star, Heart, Share2, Check } from 'lucide-react';
 import { useCartStore } from '@/store/cart';
 import { motion } from 'framer-motion';
+import { attachImageFallback, getProductGallery, resolveProductImage } from '@/lib/product-images';
 
 const euro = new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' });
 
@@ -19,9 +20,10 @@ interface ProductDetailsProps {
 }
 
 export function ProductDetails({ product, relatedProducts = [], reviews = [] }: ProductDetailsProps) {
+  const gallery = getProductGallery(product);
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(product.image_url);
+  const [selectedImage, setSelectedImage] = useState(gallery[0]);
   const { addItem } = useCartStore();
 
   const handleAddToCart = () => {
@@ -51,6 +53,7 @@ export function ProductDetails({ product, relatedProducts = [], reviews = [] }: 
               <img
                 src={selectedImage}
                 alt={product.name}
+                onError={attachImageFallback}
                 className="h-full w-full object-cover"
               />
             )}
@@ -60,9 +63,9 @@ export function ProductDetails({ product, relatedProducts = [], reviews = [] }: 
               </Badge>
             )}
           </div>
-          {product.images && product.images.length > 0 && (
+          {gallery.length > 1 && (
             <div className="flex gap-2 overflow-x-auto">
-              {product.images.map((img, idx) => (
+              {gallery.map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => setSelectedImage(img)}
@@ -72,7 +75,7 @@ export function ProductDetails({ product, relatedProducts = [], reviews = [] }: 
                       : 'border-slate-200 dark:border-slate-700 hover:border-blue-400'
                   }`}
                 >
-                  <img src={img} alt={`${product.name} ${idx}`} className="h-full w-full object-cover" />
+                  <img src={img} alt={`${product.name} ${idx}`} onError={attachImageFallback} className="h-full w-full object-cover" />
                 </button>
               ))}
             </div>
@@ -284,6 +287,9 @@ export function ProductDetails({ product, relatedProducts = [], reviews = [] }: 
           <h3 className="text-2xl font-bold">Produtos Relacionados</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {relatedProducts.map((prod) => (
+              (() => {
+                const relatedImage = resolveProductImage(prod.image_url);
+                return (
               <motion.div
                 key={prod.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -292,13 +298,13 @@ export function ProductDetails({ product, relatedProducts = [], reviews = [] }: 
               >
                 <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
                   <div className="relative aspect-square overflow-hidden bg-slate-100 dark:bg-slate-900">
-                    {prod.image_url && (
-                      <img
-                        src={prod.image_url}
-                        alt={prod.name}
-                        className="h-full w-full object-cover hover:scale-110 transition-transform"
-                      />
-                    )}
+                    <img
+                      src={relatedImage}
+                      alt={prod.name}
+                      loading="lazy"
+                      onError={attachImageFallback}
+                      className="h-full w-full object-cover hover:scale-110 transition-transform"
+                    />
                   </div>
                   <CardContent className="p-4">
                     <h4 className="font-semibold truncate">{prod.name}</h4>
@@ -306,6 +312,8 @@ export function ProductDetails({ product, relatedProducts = [], reviews = [] }: 
                   </CardContent>
                 </Card>
               </motion.div>
+                );
+              })()
             ))}
           </div>
         </div>

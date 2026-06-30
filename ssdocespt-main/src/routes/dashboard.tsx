@@ -16,13 +16,13 @@ export const Route = createFileRoute('/dashboard')({
 });
 
 function DashboardPage() {
-  if (!isSupabaseConfigured) {
-    return <SupabaseUnavailablePage title="Dashboard indisponível" />;
-  }
-
   const { user, isEmailVerified } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  if (!isSupabaseConfigured) {
+    return <SupabaseUnavailablePage title="Dashboard indisponível" />;
+  }
 
   const handleSignOut = async () => {
     setError(null);
