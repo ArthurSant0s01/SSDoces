@@ -149,28 +149,3 @@ function ProductPage() {
     </div>
   );
 }
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="container-prose mt-24">
-        <h2 className="font-display text-3xl text-foreground md:text-4xl">Pode também gostar</h2>
-        <div className="mt-8 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
-          {related.map((p) => (
-            <Link key={p.slug} to="/produtos/$slug" params={{ slug: p.slug }} className="group block">
-              <div className="aspect-square overflow-hidden rounded-3xl bg-secondary/40">
-                <img src={p.image} alt={p.name} loading="lazy" width={1200} height={1200} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              </div>
-              <div className="mt-4">
-                <div className="font-display text-xl text-foreground">{p.name}</div>
-                <div className="text-sm text-muted-foreground">{p.tagline}</div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-    </>
-  );
-}
