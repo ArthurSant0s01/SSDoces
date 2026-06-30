@@ -236,7 +236,7 @@ function Home() {
               </div>
               <div className="flex flex-wrap items-center gap-3 md:justify-end">
                 <a
-                  href="https://wa.me/351000000000"
+                  href="https://wa.me/351930935667"
                   className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-medium text-accent-foreground transition-opacity hover:opacity-90"
                 >
                   <MessageCircle className="h-4 w-4" /> Falar no WhatsApp

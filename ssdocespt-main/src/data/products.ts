@@ -2,6 +2,7 @@ import classico from "@/assets/product-classico.jpg";
 import pistacio from "@/assets/product-pistacio.jpg";
 import caramelo from "@/assets/product-caramelo.jpg";
 import coco from "@/assets/product-coco.jpg";
+import type { Product as DatabaseProduct } from "@/lib/database.types";
 
 export type Product = {
   slug: string;
@@ -81,3 +82,35 @@ export const products: Product[] = [
 export function getProduct(slug: string) {
   return products.find((p) => p.slug === slug);
 }
+
+export const storefrontCategories = [
+  { id: 'brigadeiros', name: 'Brigadeiros', slug: 'brigadeiros' },
+] as const;
+
+export function toDatabaseProduct(product: Product, index: number): DatabaseProduct {
+  return {
+    id: product.slug,
+    category_id: 'brigadeiros',
+    name: product.name,
+    slug: product.slug,
+    description: product.description,
+    long_description: product.longDescription,
+    price: product.price,
+    discount_price: undefined,
+    image_url: product.image,
+    images: [product.image],
+    quantity_in_stock: 24 - index * 3,
+    sku: `SSD-${String(index + 1).padStart(3, '0')}`,
+    is_featured: index < 3,
+    is_active: true,
+    rating: 4.9,
+    rating_count: 48 + index * 11,
+    ingredients: product.ingredients,
+    allergens: product.allergens,
+    shelf_life_days: 3,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+}
+
+export const storefrontProducts = products.map(toDatabaseProduct);

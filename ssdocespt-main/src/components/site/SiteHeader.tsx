@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { CartDrawer } from "@/components/cart/CartDrawer";
 
 const nav = [
   { to: "/", label: "Início" },
@@ -37,12 +38,15 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <Link
-          to="/produtos"
-          className="hidden rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 md:inline-flex"
-        >
-          Encomendar
-        </Link>
+        <div className="hidden items-center gap-3 md:flex">
+          <CartDrawer />
+          <Link
+            to="/produtos"
+            className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            Encomendar
+          </Link>
+        </div>
 
         <button
           type="button"
@@ -70,6 +74,9 @@ export function SiteHeader() {
                 {n.label}
               </Link>
             ))}
+            <div className="pt-2">
+              <CartDrawer />
+            </div>
           </nav>
         </div>
       )}

@@ -10,6 +10,8 @@ import { Star, Heart, Share2, Check } from 'lucide-react';
 import { useCartStore } from '@/store/cart';
 import { motion } from 'framer-motion';
 
+const euro = new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' });
+
 interface ProductDetailsProps {
   product: Product;
   relatedProducts?: Product[];
@@ -109,17 +111,17 @@ export function ProductDetails({ product, relatedProducts = [], reviews = [] }: 
             {product.discount_price ? (
               <>
                 <div className="text-sm text-slate-600 dark:text-slate-400 line-through">
-                  R$ {product.price.toFixed(2)}
+                  {euro.format(product.price)}
                 </div>
                 <div className="text-4xl font-bold text-blue-600">
-                  R$ {product.discount_price.toFixed(2)}
+                  {euro.format(product.discount_price)}
                 </div>
                 <div className="text-sm text-green-600 dark:text-green-400">
-                  Você economiza R$ {(product.price - product.discount_price).toFixed(2)}
+                  Poupa {euro.format(product.price - product.discount_price)}
                 </div>
               </>
             ) : (
-              <div className="text-4xl font-bold">R$ {product.price.toFixed(2)}</div>
+              <div className="text-4xl font-bold">{euro.format(product.price)}</div>
             )}
           </div>
 
@@ -264,13 +266,13 @@ export function ProductDetails({ product, relatedProducts = [], reviews = [] }: 
           <div className="space-y-3">
             <h4 className="font-semibold">Opções de entrega</h4>
             <p className="text-sm text-slate-600 dark:text-slate-400">
-              Retirada: Disponível em São Paulo
+              Recolha: Presencial em Guimarães
             </p>
             <p className="text-sm text-slate-600 dark:text-slate-400">
-              Entrega: São Paulo (1-2 dias úteis)
+              Morada exata: enviada por mensagem após confirmação
             </p>
             <p className="text-sm text-slate-600 dark:text-slate-400">
-              Envio: Brasil (7-15 dias úteis)
+              Horário: Segunda a Sábado, das 10h às 19h
             </p>
           </div>
         </TabsContent>
@@ -300,7 +302,7 @@ export function ProductDetails({ product, relatedProducts = [], reviews = [] }: 
                   </div>
                   <CardContent className="p-4">
                     <h4 className="font-semibold truncate">{prod.name}</h4>
-                    <p className="text-lg font-bold mt-2">R$ {prod.price.toFixed(2)}</p>
+                    <p className="text-lg font-bold mt-2">{euro.format(prod.price)}</p>
                   </CardContent>
                 </Card>
               </motion.div>

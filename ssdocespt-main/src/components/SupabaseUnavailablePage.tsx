@@ -27,7 +27,7 @@ export function SupabaseUnavailablePage({
             Voltar ao início
           </a>
           <a
-            href="mailto:contato@ssdoces.com.br"
+            href="mailto:sosdoces.pt@gmail.com"
             className="inline-flex items-center justify-center rounded-full border border-border px-5 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
           >
             Falar com suporte

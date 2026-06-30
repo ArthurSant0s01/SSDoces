@@ -66,8 +66,8 @@ function PostPage() {
             receitas, escolhas de ingredientes e bastidores da cozinha.
           </p>
           <p>
-            Entretanto, siga-nos no Instagram <a href="https://instagram.com/ssdoces" className="text-accent">@ssdoces</a> ou fale connosco
-            por <a href="https://wa.me/351000000000" className="text-accent">WhatsApp</a>.
+            Entretanto, siga-nos no Instagram <a href="https://instagram.com/ssdoces.pt" className="text-accent">@ssdoces.pt</a> ou fale connosco
+            por <a href="https://wa.me/351930935667" className="text-accent">WhatsApp</a>.
           </p>
         </div>
       </div>

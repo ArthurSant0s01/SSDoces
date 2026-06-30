@@ -34,7 +34,7 @@ SELECT
 FROM products p
 LEFT JOIN categories c ON p.category_id = c.id
 LEFT JOIN inventory i ON p.id = i.product_id
-WHERE p.deleted_at IS NULL;
+WHERE p.is_active = TRUE;
 
 -- View: Customer orders with total summary
 CREATE OR REPLACE VIEW vw_orders_summary AS

@@ -47,8 +47,7 @@ function ContactoPage() {
         <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Falar connosco</div>
         <h1 className="mt-3 font-display text-5xl text-foreground md:text-7xl">Contacto</h1>
         <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-          Marque a sua recolha em Guimarães, peça uma caixa personalizada ou tire dúvidas sobre
-          encomendas para eventos.
+          Fale connosco para reservar a sua caixa, esclarecer dúvidas e confirmar a recolha presencial em Guimarães.
         </p>
       </section>
 
@@ -57,23 +56,23 @@ function ContactoPage() {
           <ul className="space-y-6 text-sm">
             <li className="flex gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border text-accent"><MapPin className="h-4 w-4" /></div>
-              <div><div className="font-medium text-foreground">Guimarães, Portugal</div><div className="text-muted-foreground">Recolha por marcação</div></div>
+              <div><div className="font-medium text-foreground">Guimarães, Portugal</div><div className="text-muted-foreground">Morada exata enviada após confirmação</div></div>
             </li>
             <li className="flex gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border text-accent"><Clock className="h-4 w-4" /></div>
-              <div><div className="font-medium text-foreground">Horário</div><div className="text-muted-foreground">Seg — Sáb · 10:00 às 19:00</div></div>
+              <div><div className="font-medium text-foreground">Horário</div><div className="text-muted-foreground">Segunda a Sábado · 10h às 19h</div></div>
             </li>
             <li className="flex gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border text-accent"><MessageCircle className="h-4 w-4" /></div>
-              <div><a href="https://wa.me/351000000000" className="font-medium text-foreground hover:text-accent">WhatsApp</a><div className="text-muted-foreground">Resposta rápida</div></div>
+              <div><a href="https://wa.me/351930935667" className="font-medium text-foreground hover:text-accent">+351 930 935 667</a><div className="text-muted-foreground">WhatsApp para confirmar recolha</div></div>
             </li>
             <li className="flex gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border text-accent"><Mail className="h-4 w-4" /></div>
-              <div><a href="mailto:ola@ssdoces.pt" className="font-medium text-foreground hover:text-accent">ola@ssdoces.pt</a><div className="text-muted-foreground">Para propostas e empresas</div></div>
+              <div><a href="mailto:sosdoces.pt@gmail.com" className="font-medium text-foreground hover:text-accent">sosdoces.pt@gmail.com</a><div className="text-muted-foreground">Pedidos, eventos e apoio ao cliente</div></div>
             </li>
             <li className="flex gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border text-accent"><Instagram className="h-4 w-4" /></div>
-              <div><a href="https://instagram.com/ssdoces" className="font-medium text-foreground hover:text-accent">@ssdoces</a><div className="text-muted-foreground">Bastidores e novidades</div></div>
+              <div><a href="https://instagram.com/ssdoces.pt" className="font-medium text-foreground hover:text-accent">@ssdoces.pt</a><div className="text-muted-foreground">Bastidores, novidades e encomendas</div></div>
             </li>
           </ul>
         </aside>

@@ -30,7 +30,7 @@ export function getAppOrigin() {
     return window.location.origin;
   }
 
-  return import.meta.env.VITE_SITE_URL || 'https://ssdoces.com.br';
+  return import.meta.env.VITE_SITE_URL || 'https://ssdoces.pt';
 }
 
 export function getCurrentPathname() {

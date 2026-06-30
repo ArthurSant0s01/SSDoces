@@ -18,6 +18,8 @@ import { Trash2, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 
+const euro = new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' });
+
 export function CartPage() {
   const { items, removeItem, updateQuantity, getTotalPrice, getTotalItems, clearCart } =
     useCartStore();
@@ -25,8 +27,7 @@ export function CartPage() {
   const [discount, setDiscount] = useState(0);
 
   const subtotal = getTotalPrice();
-  const tax = Math.round(subtotal * 0.1 * 100) / 100;
-  const total = subtotal + tax - discount;
+  const total = subtotal - discount;
 
   const applyCoupon = () => {
     if (couponCode === 'DESCONTO10') {
@@ -40,10 +41,10 @@ export function CartPage() {
         <ShoppingBag className="w-16 h-16 mx-auto text-slate-400 mb-4" />
         <h2 className="text-2xl font-bold mb-2">Carrinho Vazio</h2>
         <p className="text-slate-600 dark:text-slate-400 mb-6">
-          Você não tem produtos no carrinho
+          Ainda não adicionou produtos ao carrinho.
         </p>
         <a href="/produtos">
-          <Button size="lg">Continuar Comprando</Button>
+          <Button size="lg">Continuar a comprar</Button>
         </a>
       </div>
     );
@@ -92,7 +93,7 @@ export function CartPage() {
                           <span>{item.name}</span>
                         </div>
                       </TableCell>
-                      <TableCell>R$ {(item.discountPrice || item.price).toFixed(2)}</TableCell>
+                      <TableCell>{euro.format(item.discountPrice || item.price)}</TableCell>
                       <TableCell>
                         <div className="flex items-center border rounded w-24">
                           <button
@@ -118,7 +119,7 @@ export function CartPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        R$ {((item.discountPrice || item.price) * item.quantity).toFixed(2)}
+                        {euro.format((item.discountPrice || item.price) * item.quantity)}
                       </TableCell>
                       <TableCell>
                         <button
@@ -138,7 +139,7 @@ export function CartPage() {
           {/* Coupon */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Cupom de Desconto</CardTitle>
+              <CardTitle className="text-lg">Código promocional</CardTitle>
             </CardHeader>
             <CardContent className="flex gap-2">
               <Input
@@ -153,7 +154,7 @@ export function CartPage() {
           </Card>
 
           <Button variant="outline" className="w-full">
-            Continuar Comprando
+            Continuar a comprar
           </Button>
         </div>
 
@@ -167,16 +168,16 @@ export function CartPage() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span>Subtotal ({getTotalItems()} itens)</span>
-                  <span>R$ {subtotal.toFixed(2)}</span>
+                  <span>{euro.format(subtotal)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Imposto (10%)</span>
-                  <span>R$ {tax.toFixed(2)}</span>
+                  <span>Recolha em Guimarães</span>
+                  <span>Grátis</span>
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between text-green-600">
                     <span>Desconto</span>
-                    <span>-R$ {discount.toFixed(2)}</span>
+                    <span>-{euro.format(discount)}</span>
                   </div>
                 )}
               </div>
@@ -184,7 +185,7 @@ export function CartPage() {
               <div className="border-t pt-4">
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total</span>
-                  <span>R$ {Math.max(0, total).toFixed(2)}</span>
+                  <span>{euro.format(Math.max(0, total))}</span>
                 </div>
               </div>
 

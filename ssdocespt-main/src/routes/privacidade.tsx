@@ -21,7 +21,7 @@ export const Route = createFileRoute("/privacidade")({
         <h2>Conservação</h2>
         <p>Conservamos os dados pelo período necessário ao cumprimento da finalidade ou enquanto a relação comercial se mantiver.</p>
         <h2>Os seus direitos</h2>
-        <p>Pode solicitar a qualquer momento acesso, retificação ou eliminação dos seus dados através do email ola@ssdoces.pt.</p>
+        <p>Pode solicitar a qualquer momento acesso, retificação ou eliminação dos seus dados através do email sosdoces.pt@gmail.com.</p>
       </div>
     </article>
   ),

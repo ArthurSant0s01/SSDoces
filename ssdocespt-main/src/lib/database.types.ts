@@ -182,7 +182,7 @@ export interface CouponUpdate extends Partial<Omit<Coupon, 'id' | 'created_at' |
 
 export interface Order {
   id: string;
-  user_id: string;
+  user_id: string | null;
   order_number: string;
   status: 'pending' | 'confirmed' | 'processing' | 'ready_for_pickup' | 'shipped' | 'delivered' | 'cancelled';
   subtotal: number;
@@ -191,17 +191,23 @@ export interface Order {
   discount_amount: number;
   coupon_id?: string;
   total: number;
-  payment_method?: 'credit_card' | 'debit_card' | 'pix' | 'bank_transfer' | 'cash';
+  payment_method?: 'mb_way' | 'revolut' | 'bank_transfer' | 'cash_on_pickup';
   payment_status: 'pending' | 'completed' | 'failed' | 'refunded';
   shipping_method?: string;
   tracking_number?: string;
   notes?: string;
   customer_notes?: string;
+  customer_name?: string;
+  customer_email?: string;
+  customer_phone?: string;
   delivery_address?: string;
   delivery_city?: string;
   delivery_state?: string;
   delivery_zip?: string;
   delivery_date?: string;
+  pickup_date?: string;
+  pickup_time?: string;
+  payment_reference?: string;
   scheduled_pickup_date?: string;
   created_at: string;
   updated_at: string;

@@ -9,8 +9,8 @@ interface FloatingWhatsAppProps {
 }
 
 export function FloatingWhatsAppButton({
-  phoneNumber = '5511999999999',
-  message = 'Olá! Gostaria de mais informações sobre os brigadeiros. 😊',
+  phoneNumber = '351930935667',
+  message = 'Olá! Gostaria de encomendar brigadeiros artesanais SSDoces.',
 }: FloatingWhatsAppProps) {
   const handleClick = () => {
     const encodedMessage = encodeURIComponent(message);

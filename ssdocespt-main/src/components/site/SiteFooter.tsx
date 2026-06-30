@@ -7,8 +7,8 @@ export function SiteFooter() {
     <footer className="mt-24 border-t border-border/60 bg-secondary/40">
       <div className="container-prose py-16">
         <NewsletterSignup
-          title="Fique Atualizado"
-          description="Receba ofertas exclusivas e novidades diretamente no seu email"
+          title="Receba Novidades SSDoces"
+          description="Novas caixas, horários de recolha e campanhas especiais diretamente no seu email"
         />
       </div>
 
@@ -16,26 +16,25 @@ export function SiteFooter() {
         <div className="md:col-span-2">
           <div className="font-display text-2xl text-foreground">SSDoces</div>
           <p className="mt-3 max-w-sm text-sm text-muted-foreground">
-            Brigadeiros artesanais feitos à mão em Guimarães. Ingredientes selecionados, produção em
-            pequenos lotes, sabor inesquecível.
+            Brigadeiros artesanais feitos com carinho. Recolha presencial em Guimarães, com morada exata enviada após confirmação da encomenda.
           </p>
           <div className="mt-6 flex items-center gap-3">
             <a
-              href="https://wa.me/351000000000"
+              href="https://wa.me/351930935667"
               aria-label="WhatsApp"
               className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground/80 transition-colors hover:bg-foreground hover:text-background"
             >
               <MessageCircle className="h-4 w-4" />
             </a>
             <a
-              href="https://instagram.com/ssdoces"
+              href="https://instagram.com/ssdoces.pt"
               aria-label="Instagram"
               className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground/80 transition-colors hover:bg-foreground hover:text-background"
             >
               <Instagram className="h-4 w-4" />
             </a>
             <a
-              href="mailto:ola@ssdoces.pt"
+              href="mailto:sosdoces.pt@gmail.com"
               aria-label="Email"
               className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground/80 transition-colors hover:bg-foreground hover:text-background"
             >
@@ -64,10 +63,15 @@ export function SiteFooter() {
           <address className="mt-4 not-italic text-sm text-foreground/80">
             Guimarães, Portugal
             <br />
-            Recolha por marcação
+            Apenas recolha presencial
             <br />
-            Seg — Sáb · 10:00 às 19:00
+            Segunda a Sábado · 10h às 19h
           </address>
+          <div className="mt-4 space-y-1 text-sm text-muted-foreground">
+            <p>WhatsApp: +351 930 935 667</p>
+            <p>Email: sosdoces.pt@gmail.com</p>
+            <p>Instagram: @ssdoces.pt</p>
+          </div>
           <ul className="mt-4 space-y-2 text-sm">
             <li><Link to="/privacidade" className="text-muted-foreground hover:text-foreground">Privacidade</Link></li>
             <li><Link to="/termos" className="text-muted-foreground hover:text-foreground">Termos</Link></li>
@@ -77,7 +81,7 @@ export function SiteFooter() {
       <div className="border-t border-border/60">
         <div className="container-prose flex flex-col items-start justify-between gap-2 py-6 text-xs text-muted-foreground md:flex-row md:items-center">
           <div>© {new Date().getFullYear()} SSDoces. Todos os direitos reservados.</div>
-          <div>Feito com carinho em Guimarães.</div>
+          <div>Feito com carinho em Guimarães. Recolha confirmada por WhatsApp.</div>
         </div>
       </div>
     </footer>

@@ -17,6 +17,8 @@ import { Heart, Star, Search } from 'lucide-react';
 import { useCartStore } from '@/store/cart';
 import { motion } from 'framer-motion';
 
+const euro = new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' });
+
 interface ProductGridProps {
   products: Product[];
   categories: Array<{ id: string; name: string; slug: string }>;
@@ -127,7 +129,7 @@ export function ProductGrid({
 
         {/* Price Range */}
         <div className="space-y-2">
-          <label className="text-sm font-medium">Preço: R$ 0 - R$ 100</label>
+          <label className="text-sm font-medium">Preço: €0 - €100</label>
           <div className="flex gap-2">
             <Input
               type="number"
@@ -245,14 +247,14 @@ export function ProductGrid({
                       {product.discount_price ? (
                         <div className="flex items-center gap-2">
                           <span className="text-lg font-bold text-blue-600">
-                            R$ {product.discount_price.toFixed(2)}
+                            {euro.format(product.discount_price)}
                           </span>
                           <span className="text-sm text-slate-500 line-through">
-                            R$ {product.price.toFixed(2)}
+                            {euro.format(product.price)}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-lg font-bold">R$ {product.price.toFixed(2)}</span>
+                        <span className="text-lg font-bold">{euro.format(product.price)}</span>
                       )}
                     </div>
 

@@ -23,6 +23,7 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { AuthProvider } from "@/hooks/use-auth";
 import { FloatingWhatsAppButton } from "@/components/FloatingWhatsAppButton";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { PromoBanner } from "@/components/PromoBanner";
 
 function NotFoundComponent() {
   return (
@@ -158,6 +159,7 @@ function RootComponent() {
       <ErrorBoundary>
         <AuthProvider>
           <div className="flex min-h-dvh flex-col">
+            <PromoBanner />
             <SiteHeader />
             <main className="flex-1">
               <Outlet />

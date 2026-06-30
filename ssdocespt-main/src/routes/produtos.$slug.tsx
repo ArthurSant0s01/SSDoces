@@ -5,37 +5,13 @@ import { ProductDetails } from '@/components/products/ProductDetails';
 import { ReviewForm } from '@/components/ReviewForm';
 import { ArrowLeft } from 'lucide-react';
 import { generateProductStructuredData, generateBreadcrumbStructuredData } from '@/lib/seo';
+import { storefrontProducts } from '@/data/products';
 
 export const Route = createFileRoute('/produtos/$slug')({
   loader: ({ params }) => {
-    // Mock product data - Replace with Supabase query in production
-    const mockProduct = {
-      id: params.slug,
-      name: 'Brigadeiro Tradicional',
-      slug: params.slug,
-      description: 'Brigadeiro clássico feito com ingredientes premium',
-      long_description:
-        'Nosso brigadeiro tradicional é feito com chocolate belga, leite condensado e manteiga. Perfeito para festas e eventos.',
-      price: 15.0,
-      discount_price: 12.0,
-      image_url: '/brigadeiro-tradicional.jpg',
-      images: ['/brigadeiro-tradicional.jpg'],
-      quantity_in_stock: 100,
-      rating: 4.9,
-      rating_count: 256,
-      category_id: '1',
-      is_featured: true,
-      is_active: true,
-      sku: 'BRAD-001',
-      ingredients: ['Chocolate', 'Leite Condensado', 'Manteiga'],
-      allergens: ['Leite'],
-      shelf_life_days: 30,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-
-    if (!mockProduct) throw notFound();
-    return { product: mockProduct };
+    const product = storefrontProducts.find((item) => item.slug === params.slug);
+    if (!product) throw notFound();
+    return { product };
   },
   head: ({ loaderData }) => {
     const p = loaderData?.product;
@@ -62,7 +38,7 @@ export const Route = createFileRoute('/produtos/$slug')({
               price: p.discount_price || p.price,
               rating: p.rating,
               image: p.image_url,
-              url: `https://ssdoces.com.br/produtos/${p.slug}`,
+              url: `https://ssdoces.pt/produtos/${p.slug}`,
             })
           ),
         },
@@ -95,29 +71,7 @@ function ProductPage() {
   ];
 
   const mockRelatedProducts = [
-    {
-      id: '2',
-      name: 'Brigadeiro de Pistache',
-      price: 25.0,
-      discount_price: null,
-      image_url: '/brigadeiro-pistache.jpg',
-      rating: 4.8,
-      rating_count: 189,
-      slug: 'brigadeiro-pistache',
-      description: 'Brigadeiro gourmet com sabor sofisticado',
-      long_description: '',
-      quantity_in_stock: 45,
-      category_id: '2',
-      is_featured: true,
-      is_active: true,
-      sku: 'BRAD-002',
-      ingredients: ['Chocolate Branco', 'Pistache'],
-      allergens: ['Leite'],
-      shelf_life_days: 21,
-      images: [],
-      created_at: '',
-      updated_at: '',
-    },
+    ...storefrontProducts.filter((item) => item.slug !== product.slug).slice(0, 3),
   ];
 
   return (

@@ -2,12 +2,13 @@
 
 import { createFileRoute } from '@tanstack/react-router';
 import { CheckoutFlow } from '@/components/CheckoutFlow';
+import { createOrder } from '@/lib/checkout-server';
 
 export const Route = createFileRoute('/checkout')({
   head: () => ({
     meta: [
-      { title: 'Checkout - SSDoces' },
-      { name: 'description', content: 'Complete seu pedido com segurança' },
+      { title: 'Checkout SSDoces - Recolha em Guimarães' },
+      { name: 'description', content: 'Finalize a sua encomenda de brigadeiros artesanais com recolha presencial em Guimarães.' },
       { property: 'og:title', content: 'Checkout - SSDoces' },
       { property: 'og:type', content: 'website' },
     ],
@@ -17,35 +18,10 @@ export const Route = createFileRoute('/checkout')({
 });
 
 function CheckoutRouteComponent() {
-  const handleOrderSubmit = async (orderData: any) => {
-    try {
-      console.log('Submitting order:', orderData);
-      
-      // TODO: Save order to Supabase
-      // const { data, error } = await supabase
-      //   .from('orders')
-      //   .insert([{
-      //     user_id: user?.id,
-      //     items: orderData.items,
-      //     total: orderData.total,
-      //     ...orderData
-      //   }]);
-
-      // if (error) throw error;
-
-      // For now, just simulate the order creation
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-    } catch (error) {
-      console.error('Error submitting order:', error);
-      throw error;
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8">Checkout</h1>
-        <CheckoutFlow onOrderSubmit={handleOrderSubmit} />
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#fff5ea,transparent_45%),linear-gradient(180deg,#fffdf9_0%,#fff8ef_100%)] dark:bg-slate-950">
+      <div className="max-w-7xl mx-auto px-4 py-10">
+        <CheckoutFlow onOrderSubmit={createOrder} />
       </div>
     </div>
   );

@@ -15,7 +15,7 @@ interface SeoData {
  * Generate metadata for SEO
  */
 export function generateSeoMetadata(data: SeoData) {
-  const baseUrl = import.meta.env.VITE_SITE_URL || 'https://ssdoces.com.br';
+  const baseUrl = import.meta.env.VITE_SITE_URL || 'https://ssdoces.pt';
 
   return {
     title: data.title,
@@ -24,7 +24,8 @@ export function generateSeoMetadata(data: SeoData) {
       'brigadeiro',
       'doces',
       'artesanal',
-      'São Paulo',
+      'Guimarães',
+      'Portugal',
       'entrega',
       'gourmet',
     ],
@@ -96,32 +97,28 @@ export function generateProductStructuredData(product: {
  * Generate organization structured data
  */
 export function generateOrganizationStructuredData() {
-  const baseUrl = import.meta.env.VITE_SITE_URL || 'https://ssdoces.com.br';
+  const baseUrl = import.meta.env.VITE_SITE_URL || 'https://ssdoces.pt';
 
   return {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     name: 'SSDoces',
     description:
-      'Brigadeiros artesanais feitos com ingredientes de qualidade premium. Entrega em São Paulo e Brasil.',
+      'Brigadeiros artesanais premium com recolha presencial em Guimarães, Portugal.',
     image: `${baseUrl}/logo.png`,
     url: baseUrl,
-    telephone: '+55 11 99999-9999',
-    email: 'contato@ssdoces.com.br',
+    telephone: '+351930935667',
+    email: 'sosdoces.pt@gmail.com',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Rua das Flores, 123',
-      addressLocality: 'São Paulo',
-      addressRegion: 'SP',
-      postalCode: '01310-100',
-      addressCountry: 'BR',
+      addressLocality: 'Guimarães',
+      addressCountry: 'PT',
     },
     sameAs: [
-      'https://www.instagram.com/ssdoces',
-      'https://www.facebook.com/ssdoces',
-      'https://www.whatsapp.com/send?phone=5511999999999',
+      'https://www.instagram.com/ssdoces.pt',
+      'https://www.whatsapp.com/send?phone=351930935667',
     ],
-    areaServed: 'BR',
+    areaServed: 'Guimarães',
   };
 }
 
@@ -198,7 +195,7 @@ export function generateArticleStructuredData(article: {
  * Get canonical URL
  */
 export function getCanonicalUrl(path: string): string {
-  const baseUrl = import.meta.env.VITE_SITE_URL || 'https://ssdoces.com.br';
+  const baseUrl = import.meta.env.VITE_SITE_URL || 'https://ssdoces.pt';
   return `${baseUrl}${path}`;
 }
 
@@ -249,18 +246,18 @@ export function generateSlug(text: string): string {
  */
 export const SeoDescriptions = {
   homePage:
-    'SSDoces - Brigadeiros artesanais feitos com ingredientes premium. Entrega em São Paulo e Brasil. Compre brigadeiros clássicos, gourmet, sem glúten e veganos.',
-  productsPage: 'Explore nossa variedade de brigadeiros artesanais. Clássicos, gourmet, sem glúten e veganos.',
+    'SSDoces - Brigadeiros artesanais feitos com carinho para recolha presencial em Guimarães. Caixas premium, sabores exclusivos e produção em pequenos lotes.',
+  productsPage: 'Explore a coleção SSDoces de brigadeiros artesanais premium disponíveis para recolha em Guimarães.',
   aboutPage:
-    'Conheça a história da SSDoces. Fabricantes de brigadeiros artesanais com qualidade premium desde 2020.',
-  contactPage: 'Entre em contato com a SSDoces. Estamos aqui para ajudar com seus pedidos e dúvidas.',
+    'Conheça a história da SSDoces e a produção artesanal de brigadeiros premium em Guimarães.',
+  contactPage: 'Contacte a SSDoces por WhatsApp, email ou Instagram para reservar a sua recolha em Guimarães.',
 };
 
 /**
  * Generate breadcrumb items for navigation
  */
 export function getBreadcrumbItems(pathname: string): Array<{ name: string; url: string }> {
-  const baseUrl = import.meta.env.VITE_SITE_URL || 'https://ssdoces.com.br';
+  const baseUrl = import.meta.env.VITE_SITE_URL || 'https://ssdoces.pt';
   const items: Array<{ name: string; url: string }> = [
     { name: 'Home', url: baseUrl },
   ];

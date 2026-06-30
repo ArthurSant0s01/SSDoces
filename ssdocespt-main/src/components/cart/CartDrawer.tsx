@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input';
 import { ShoppingCart, Trash2, Plus, Minus } from 'lucide-react';
 import { useState } from 'react';
 
+const euro = new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' });
+
 export function CartDrawer() {
   const [isOpen, setIsOpen] = useState(false);
   const { items, removeItem, updateQuantity, getTotalPrice } = useCartStore();
@@ -56,7 +58,7 @@ export function CartDrawer() {
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-sm truncate">{item.name}</h3>
                     <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                      R$ {item.discountPrice || item.price}
+                      {euro.format(item.discountPrice || item.price)}
                     </p>
                     <div className="flex items-center gap-2 mt-2">
                       <button
@@ -94,17 +96,17 @@ export function CartDrawer() {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Subtotal</span>
-                  <span>R$ {getTotalPrice().toFixed(2)}</span>
+                  <span>{euro.format(getTotalPrice())}</span>
                 </div>
                 <div className="flex justify-between text-sm text-slate-600 dark:text-slate-400">
-                  <span>Frete</span>
-                  <span>Calculado no checkout</span>
+                  <span>Recolha</span>
+                  <span>Grátis</span>
                 </div>
               </div>
               <Separator />
               <div className="flex justify-between font-bold text-lg">
                 <span>Total</span>
-                <span>R$ {getTotalPrice().toFixed(2)}</span>
+                <span>{euro.format(getTotalPrice())}</span>
               </div>
               <div className="flex gap-2">
                 <DrawerClose asChild>
